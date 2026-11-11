@@ -34,7 +34,10 @@ def test_proxy_dns_resolves_only_exact_addresses(monkeypatch: Any) -> None:
         "getaddrinfo",
         lambda *a, **k: [(10, 1, 6, "", ("fd12:3456::2", 0, 0, 0)), (2, 1, 6, "", ("10.0.0.7", 0))],
     )
+    monkeypatch.setattr(serve.settings, "api_bind_host", "0.0.0.0")
     assert serve.proxy_addresses() == ["10.0.0.7", "fd12:3456::2"]
+    monkeypatch.setattr(serve.settings, "api_bind_host", "::")
+    assert serve.proxy_addresses() == ["10.0.0.7", "::ffff:a00:7", "fd12:3456::2"]
     monkeypatch.setattr(serve.socket, "getaddrinfo", lambda *a, **k: [])
     monkeypatch.setattr(serve.settings, "app_env", "production")
     with pytest.raises(ValueError):
@@ -85,3 +88,18 @@ def test_client_tls_must_be_active_and_verified() -> None:
     connection.info.get_parameters = lambda: {"sslmode": "require"}
     with pytest.raises(ValueError):
         verify_client_tls(connection)
+
+
+def test_listener_accepts_both_private_network_address_families(monkeypatch: Any) -> None:
+    import socket
+
+    from app.operations import serve
+
+    monkeypatch.setattr(serve.settings, "api_bind_host", "::")
+    monkeypatch.setattr(serve.settings, "port", 0)
+    with serve.listener_socket() as listener:
+        port = listener.getsockname()[1]
+        for host in ("127.0.0.1", "::1"):
+            with socket.create_connection((host, port), timeout=2):
+                accepted, _ = listener.accept()
+                accepted.close()

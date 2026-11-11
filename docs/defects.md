@@ -88,3 +88,7 @@ Actual API startup could not resolve web.railway.internal; web deployment /ready
 ## D031 — Fresh restore database already contains public schema
 
 Hosted pg_restore --exit-on-error stopped at schema public already exists; isolated DB remained at zero public tables, source untouched. Read-only dump preflight passed. Restore TOC now omits exactly the public schema CREATE entry, avoiding clean/drop and preserving all data/constraints/triggers. Retry uses the same verified empty isolated DB; outcome pending.
+
+## D032 — IPv6 host binding was not dual-family
+
+API listened on :: but Railway health did not reach it. Actual installed asyncio/Uvicorn path created V6ONLY=1; loopback IPv4 refused. Explicit V6ONLY=0 listener now accepts both families, with exact mapped IPv4 proxy addresses also trusted. New real socket regression exercises IPv4/IPv6. No public API domain or broad proxy CIDR added. Hosted outcome pending.
