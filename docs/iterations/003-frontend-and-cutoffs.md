@@ -1,0 +1,15 @@
+# Iteration 003 — Connected interface and historical consistency
+
+Starting state: backend green at `81fd5e6`, 17 tests. Objective: deliver six real frontend views and challenge historical cutoff consistency.
+
+Implementation: strict TypeScript API contracts; authenticated React UI with portfolio switching; DB-derived overview; provider fixture downloads and upload; job replay/row reports; normalized leases and ledger source evidence; reconciliation filters/review; pricing/immutable preview breakdown/CSV; audit and worker diagnostics; responsive layout, loading/error/empty states. No simulated API responses or synthetic KPI calculations in browser. Removed external font import to keep local UI self-contained and compatible with restrictive CSP; system font fallback is deliberate.
+
+Verification: npm dependency install reported zero vulnerabilities. Strict TS/Vite build passed (1,580 modules; 265.29 kB JS, 80.80 kB gzip; 11.68s initial observed build). Added historical-version, zero/credit/adjustment, origin/rate-limit and publication regressions. Stronger financial cutoff test failed first (one missing charge instead of two); added missing publication predicate; expanded backend suite **22 passed, 1 upstream warning, 8.04s**, **86% coverage**.
+
+First Chrome run: two failed tests because local dev server uses 127.0.0.1 but origin allowlist only included localhost. Preserved explicit allowlist and added loopback origin, rather than disabling CSRF/origin checks. Resolve `.env` relative to project config file instead of process working directory. Browser artifacts are local and gitignored, because traces can contain demo credentials.
+
+Final browser verification pending. Root-directory npm operator error repeated; Makefile commands will eliminate directory ambiguity.
+
+Additional browser corrections: D009 success feedback preceded refreshed replay history; now waits for load. D010 test expected a dot while locale rendered comma; changed display matcher only. Keyboard dialog focus/escape behavior implemented. Initial mobile image inspected: no horizontal document overflow; compact tables scroll within their panels. Adjusted portfolio picker layout to keep its icon beside the selector. Full reviewer journey rerun pending.
+
+Final verification: Chrome journey and mobile both passed — **2 passed in 7.3s** — after stable navigation aria-labels and an explicit Ledger selection in test following reload. The earlier final assertion had assumed pre-reload local view state, while persisted backend state was correct (D012). Successful journey verifies actual replay duplicate report, lineage, reconciliation/review, fee preview/export, persisted refresh, audit and second portfolio. Backend expanded reliability suite: **24 passed, 1 upstream warning, 8.03s**, **85% statement coverage** (coverage denominator grew with the seed recovery implementation; no coverage improvement claimed). 10k baseline completed, see validation and machine JSON. Interface/behavior increment accepted for this verified local scope.

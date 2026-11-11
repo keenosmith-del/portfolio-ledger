@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "counts": {
+    "ledger_entries": 9,
+    "leases": 3,
+    "billing_previews": 4,
+    "billing_preview_lines": 8,
+    "audit_events": 31,
+    "exceptions": 52,
+    "import_jobs": 9
+  },
+  "ledger_total_zar": "19500.00"
+}

@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ledger
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ledger_local}
+      POSTGRES_DB: ledger
+    ports: ["127.0.0.1:5438:5432"]
+    volumes: ["ledger_data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ledger"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  api:
+    build: ./backend
+    environment: &app_env
+      DATABASE_URL: postgresql+psycopg://ledger:${POSTGRES_PASSWORD:-ledger_local}@db:5432/ledger
+      DEMO_PASSWORD: ${DEMO_PASSWORD:?Set DEMO_PASSWORD in .env}
+      APP_ENV: development
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on:
+      db: {condition: service_healthy}
+    command: sh -c 'alembic upgrade head && python -m app.seed && uvicorn app.main:app --host 0.0.0.0'
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready')"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+  worker:
+    build: ./backend
+    environment: *app_env
+    depends_on:
+      api: {condition: service_healthy}
+    command: python -m app.workers.runner
+  web:
+    build: ./frontend
+    ports: ["127.0.0.1:5173:80"]
+    depends_on: [api]
+volumes:
+  ledger_data:

@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "timestamp_utc": "2026-11-11T07:25:42.228568+00:00",
+  "python": "3.12.15",
+  "platform": "Darwin arm64",
+  "commit": "81fd5e6",
+  "working_tree": "see git status; benchmark includes uncommitted acceptance script",
+  "financial_events": 10000,
+  "artifact_bytes": 715499,
+  "receipts": [
+    {
+      "accepted": 10002,
+      "duplicates": 0,
+      "quarantined": 2
+    },
+    {
+      "accepted": 0,
+      "duplicates": 10002,
+      "quarantined": 2
+    }
+  ],
+  "first_import_seconds": 100.59,
+  "replay_seconds": 80.81,
+  "ledger_entries_after_replay": 10000,
+  "ledger_total_zar": "18750000.00",
+  "full_journey_seconds": 182.079,
+  "isolation": "temporary PostgreSQL schema; migrated from blank; removed on exit"
+}
