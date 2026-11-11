@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "counts": {
+    "ledger_entries": 9,
+    "leases": 3,
+    "billing_previews": 8,
+    "billing_preview_lines": 15,
+    "audit_events": 48,
+    "exceptions": 119,
+    "import_jobs": 12
+  },
+  "ledger_total_zar": "19500.00",
+  "timestamp_utc": "2026-11-11T12:54:28.327285+00:00",
+  "scope": "loopback public-review mode; business IDs and ledger total compared before/after",
+  "browser_cases": 1,
+  "browser_seconds": 4.2,
+  "direct_write_denials": [
+    "upload",
+    "replay",
+    "reconciliation",
+    "exception review",
+    "preview creation"
+  ]
+}

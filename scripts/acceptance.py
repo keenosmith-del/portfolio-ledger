@@ -19,7 +19,16 @@ from alembic import command
 from alembic.config import Config
 from app.core.auth import hasher
 from app.core.config import settings
-from app.db.models import Access, ImportJob, LedgerEntry, Portfolio, Pricing, User, now
+from app.db.models import (
+    Access,
+    ImportJob,
+    IntegrationSource,
+    LedgerEntry,
+    Portfolio,
+    Pricing,
+    User,
+    now,
+)
 from app.integrations.synthetic import atlas_feed, meridian_feed
 from app.main import app
 from app.services.ingestion import enqueue
@@ -58,6 +67,15 @@ try:
         db.flush()
         for portfolio in (cedar, harbour):
             db.add(Access(user_id=actor.id, portfolio_id=portfolio.id))
+            for source in ("demo", "benchmark"):
+                db.add(
+                    IntegrationSource(
+                        portfolio_id=portfolio.id,
+                        source_key=source,
+                        adapter=portfolio.adapter,
+                        upstream_account=source,
+                    )
+                )
             db.add(
                 Pricing(
                     portfolio_id=portfolio.id,
@@ -165,11 +183,13 @@ try:
         "commit": subprocess.check_output(
             ["git", "rev-parse", "--short", "HEAD"], cwd=root, text=True
         ).strip(),
-        "working_tree": "dirty"
-        if subprocess.check_output(
-            ["git", "status", "--porcelain"], cwd=root, text=True
-        ).strip()
-        else "clean",
+        "working_tree": (
+            "dirty"
+            if subprocess.check_output(
+                ["git", "status", "--porcelain"], cwd=root, text=True
+            ).strip()
+            else "clean"
+        ),
         "financial_events": 10000,
         "artifact_bytes": len(content),
         "receipts": receipts,

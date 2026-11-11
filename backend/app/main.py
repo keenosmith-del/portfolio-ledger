@@ -23,10 +23,11 @@ from fastapi import (
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from sqlalchemy import func, inspect, select, text
+from sqlalchemy import func, inspect, select, text, true
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.core.auth import (
     DUMMY_HASH,
@@ -37,6 +38,7 @@ from app.core.auth import (
     token_hash,
     writable,
 )
+from app.core.body_limit import BodyLimitMiddleware
 from app.core.config import settings
 from app.db.models import (
     Access,
@@ -45,6 +47,7 @@ from app.db.models import (
     Base,
     ExceptionRecord,
     ImportJob,
+    IntegrationSource,
     LedgerEntry,
     Portfolio,
     PortfolioEntity,
@@ -56,12 +59,13 @@ from app.db.models import (
     User,
     now,
 )
+from app.db.readiness import migration_heads
 from app.db.session import get_db
 from app.integrations.adapters import MAX_BYTES, FeedError
 from app.schemas.api import Login, ReviewRequest, RunRequest
 from app.services.common import audit, lock
 from app.services.finance import export_preview, lease_versions, preview, reconcile
-from app.services.ingestion import enqueue
+from app.services.ingestion import configured_source, enqueue
 
 app = FastAPI(
     title="PortfolioLedger",
@@ -75,6 +79,8 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type", "X-CSRF-Token", "Idempotency-Key", "X-Request-ID"],
 )
+app.add_middleware(BodyLimitMiddleware, maximum=MAX_BYTES + 65536)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.allowed_hosts)
 logger = logging.getLogger("portfolioledger.api")
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
@@ -122,15 +128,20 @@ async def request_context(request: Request, call_next: Any) -> Response:
         supplied if re.fullmatch(r"[A-Za-z0-9_-]{1,80}", supplied) else str(uuid4())
     )
     started = time.monotonic()
+    response: Response | None = None
     try:
         if int(request.headers.get("content-length", "0")) > MAX_BYTES + 65536:
-            return JSONResponse(
+            response = JSONResponse(
                 {"error": {"code": "request_too_large", "request_id": corr(request)}},
                 status_code=413,
             )
     except ValueError:
-        return JSONResponse({"error": {"code": "invalid_content_length"}}, status_code=400)
-    response: Response = await call_next(request)
+        response = JSONResponse(
+            {"error": {"code": "invalid_content_length", "request_id": corr(request)}},
+            status_code=400,
+        )
+    if response is None:
+        response = await call_next(request)
     response.headers["X-Request-ID"] = corr(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Cache-Control"] = "no-store"
@@ -177,7 +188,11 @@ async def validation_error(request: Request, exc: RequestValidationError) -> JSO
 async def database_error(request: Request, exc: SQLAlchemyError) -> JSONResponse:
     logger.error(
         json.dumps(
-            {"event": "database_error", "request_id": corr(request), "type": type(exc).__name__}
+            {
+                "event": "database_error",
+                "request_id": corr(request),
+                "type": type(exc).__name__,
+            }
         )
     )
     return JSONResponse(
@@ -194,10 +209,23 @@ def health() -> dict[str, str]:
 @app.get("/ready")
 def ready(db: Session = Depends(get_db, scope="function")) -> dict[str, str]:
     db.execute(text("SELECT 1"))
-    version = db.scalar(text("SELECT version_num FROM alembic_version"))
-    if version != "b002" or (settings.app_env == "production" and not settings.cookie_secure):
+    versions = set(db.scalars(text("SELECT version_num FROM alembic_version")))
+    if versions != migration_heads():
         raise HTTPException(503, "configuration_or_migration_not_ready")
-    return {"status": "ready", "schema": str(version)}
+    if settings.app_env == "production":
+        privileged = db.scalar(
+            text(
+                "SELECT rolsuper OR rolcreaterole OR rolcreatedb OR rolbypassrls FROM pg_roles WHERE rolname = current_user"
+            )
+        )
+        owner = db.scalar(
+            text(
+                "SELECT count(*) FROM pg_tables WHERE schemaname = current_schema() AND pg_has_role(current_user, tableowner, 'MEMBER')"
+            )
+        )
+        if privileged or owner:
+            raise HTTPException(503, "runtime_role_is_privileged")
+    return {"status": "ready", "schema": ",".join(sorted(versions))}
 
 
 @app.post("/api/auth/login")
@@ -208,7 +236,11 @@ def login(
     db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     origin = request.headers.get("origin")
-    if origin and origin not in [*settings.allowed_origins, str(request.base_url).rstrip("/")]:
+    if (
+        origin
+        and origin not in settings.allowed_origins
+        and not (settings.app_env != "production" and origin == str(request.base_url).rstrip("/"))
+    ):
         raise HTTPException(403, "origin_not_allowed")
     address = request.client.host if request.client else "unknown"
     rate_limit(db, "login:" + token_hash(address), 10, 60)
@@ -219,6 +251,10 @@ def login(
         raise HTTPException(401, "invalid_credentials") from exc
     if user is None:
         raise HTTPException(401, "invalid_credentials")
+    return create_session(db, request, response, user)
+
+
+def create_session(db: Session, request: Request, response: Response, user: User) -> dict[str, Any]:
     old = db.scalar(
         select(AuthSession).where(
             AuthSession.token_hash == token_hash(request.cookies.get("ledger_session", ""))
@@ -226,13 +262,25 @@ def login(
     )
     if old:
         db.delete(old)
+    lock(db, "sessions:" + user.id)
+    active_count = (
+        db.scalar(
+            select(func.count())
+            .select_from(AuthSession)
+            .where(AuthSession.user_id == user.id, AuthSession.expires_at > now())
+        )
+        or 0
+    )
+    public = user.email == "public-review@portfolioledger.test"
+    if active_count >= (200 if public else 20):
+        raise HTTPException(429, "session_limit_exceeded", headers={"Retry-After": "3600"})
     token, csrf = secrets.token_urlsafe(32), secrets.token_urlsafe(32)
     db.add(
         AuthSession(
             token_hash=token_hash(token),
             csrf=csrf,
             user_id=user.id,
-            expires_at=now() + timedelta(hours=8),
+            expires_at=now() + timedelta(hours=1 if public else 8),
         )
     )
     response.set_cookie(
@@ -241,15 +289,80 @@ def login(
         httponly=True,
         secure=settings.cookie_secure,
         samesite="strict",
-        max_age=28800,
+        max_age=3600 if public else 28800,
         path="/",
     )
-    return {"email": user.email, "role": user.role, "csrf": csrf}
+    return {
+        "email": user.email,
+        "role": user.role,
+        "csrf": csrf,
+        "read_only": settings.public_demo_read_only or user.role == "reviewer",
+    }
+
+
+@app.get("/api/auth/options")
+def auth_options() -> dict[str, bool]:
+    return {"public_review_enabled": settings.public_review_enabled}
+
+
+@app.post("/api/auth/public-review")
+def public_review(
+    request: Request, response: Response, db: Session = Depends(get_db, scope="function")
+) -> dict[str, Any]:
+    if not settings.public_review_enabled:
+        raise HTTPException(404, "public_review_disabled")
+    origin = request.headers.get("origin")
+    if (
+        origin
+        and origin not in settings.allowed_origins
+        and not (settings.app_env != "production" and origin == str(request.base_url).rstrip("/"))
+    ):
+        raise HTTPException(403, "origin_not_allowed")
+    address = request.client.host if request.client else "unknown"
+    rate_limit(db, "login:" + token_hash(address), 10)
+    user = db.scalar(
+        select(User).where(
+            User.email == "public-review@portfolioledger.test", User.role == "reviewer"
+        )
+    )
+    if user is None:
+        raise HTTPException(503, "public_reviewer_not_seeded")
+    grants = list(
+        db.scalars(
+            select(Portfolio)
+            .join(Access, Access.portfolio_id == Portfolio.id)
+            .where(Access.user_id == user.id)
+        )
+    )
+    if not grants or any(not p.synthetic_demo for p in grants):
+        raise HTTPException(503, "public_reviewer_scope_not_synthetic")
+    return create_session(db, request, response, user)
+
+
+@app.get("/api/portfolios/{portfolio_id}/integration-sources")
+def integration_sources(
+    portfolio_id: str,
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
+) -> list[dict[str, Any]]:
+    return [
+        {"source_key": s.source_key, "adapter": s.adapter}
+        for s in db.scalars(
+            select(IntegrationSource).where(
+                IntegrationSource.portfolio_id == portfolio_id, IntegrationSource.enabled.is_(True)
+            )
+        )
+    ]
 
 
 @app.get("/api/auth/me")
-def me(request: Request, user: User = Depends(authenticate, scope="function")) -> dict[str, str]:
-    return {"email": user.email, "role": user.role, "csrf": request.state.auth_session.csrf}
+def me(request: Request, user: User = Depends(authenticate, scope="function")) -> dict[str, Any]:
+    return {
+        "email": user.email,
+        "role": user.role,
+        "csrf": request.state.auth_session.csrf,
+        "read_only": settings.public_demo_read_only or user.role == "reviewer",
+    }
 
 
 @app.post("/api/auth/logout", status_code=204)
@@ -273,7 +386,12 @@ def portfolios(
         for row in db.scalars(
             select(Portfolio)
             .join(Access, Access.portfolio_id == Portfolio.id)
-            .where(Access.user_id == user.id)
+            .where(
+                Access.user_id == user.id,
+                Portfolio.synthetic_demo.is_(True)
+                if user.email == "public-review@portfolioledger.test"
+                else true(),
+            )
             .order_by(Portfolio.name)
         )
     ]
@@ -480,10 +598,12 @@ def replay(
     writable(user)
     rate_limit(db, "write:" + user.id, 60)
     source_job = scoped(db, ImportJob, portfolio_id, job_id)
+    configured_source(db, portfolio_id, source_job.adapter, source_job.source_key)
     lock(db, "enqueue:" + portfolio_id + ":" + idempotency_key)
     old = db.scalar(
         select(ImportJob).where(
-            ImportJob.portfolio_id == portfolio_id, ImportJob.idempotency_key == idempotency_key
+            ImportJob.portfolio_id == portfolio_id,
+            ImportJob.idempotency_key == idempotency_key,
         )
     )
     if old:
@@ -591,9 +711,13 @@ def resolve(
     db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     writable(user)
+    rate_limit(db, "write:" + user.id, 60)
     record = db.scalar(
         select(ExceptionRecord)
-        .where(ExceptionRecord.portfolio_id == portfolio_id, ExceptionRecord.id == exception_id)
+        .where(
+            ExceptionRecord.portfolio_id == portfolio_id,
+            ExceptionRecord.id == exception_id,
+        )
         .with_for_update()
     )
     if record is None:
@@ -696,7 +820,10 @@ def export(
     lines = list(
         db.scalars(
             select(PreviewLine)
-            .where(PreviewLine.portfolio_id == portfolio_id, PreviewLine.preview_id == preview_id)
+            .where(
+                PreviewLine.portfolio_id == portfolio_id,
+                PreviewLine.preview_id == preview_id,
+            )
             .order_by(PreviewLine.external_id)
         )
     )

@@ -61,3 +61,25 @@ After the hardened acceptance schema was cleaned up, saved IDs for ledger, lease
 ## Final local audit
 
 Post-full-restart `make e2e`: **2 passed in 6.9s** (rotated credential login, reviewer journey, mobile). Final `make check`: Ruff lint and 26-file formatting pass; strict mypy 15 app files pass; frontend Prettier/strict TypeScript/build pass. `git diff --check` clean. Current generated credential scan over tracked content passed; `.env` is not tracked. Existing GitHub URL verified read-only with `gh repo view`; public repository default branch main. No push or hosted Actions run executed, no public frontend/API deployed, no paid cloud resource provisioned. These limits are deliberate and documented, not hidden verification successes.
+
+## Iteration 005/006 — release/UI candidate (2026-11-11)
+
+Starting SHA 3a605a0, branch codex/portfolio-ledger-release-ui-v2, 14 inherited dirty files preserved. Actual baseline: formatting failed on 11 files; database first unavailable (7 tests passed/19 infrastructure setup errors); approved local rerun **26 passed / 13.36s / 85%**; Chrome **2 passed / 9.6s**. Baseline screenshots captured before design edits.
+
+New failing regression checkpoint: **5 failed / 1.39s** (source namespace acceptance, readiness helper missing, early-error headers, unsafe production defaults, public reviewer absent). First correction rerun **4 passed/1 failed / 2.83s** (headers), then **31 passed / 18.86s** after correction. Expanded registry/role suite **35 passed / 56.94s** during concurrent build. Added historical migration, strict production cases, session bounds and full API/worker journey under separate runtime roles: **39 passed / 34.13s / 85% coverage**, one upstream Starlette/httpx warning.
+
+`make check`: Ruff lint/format, strict mypy (20 files), Prettier, strict TypeScript, production Vite build and token guard pass. `make e2e` against rebuilt non-root Nginx/API/worker/PostgreSQL: **6 passed / 56.5s**, original assertions retained. Includes 36 view/viewport combinations (six screens x six widths), >=40px inputs/buttons, no page overflow, internal table scrolling, search/empty, keyboard focus/Escape/restoration, private reviewer read-only and CSV, sessions, login + all screens automated axe WCAG A/AA/2.1 AA. Automated audits do not replace manual accessibility review.
+
+Manual visual review: actual before overview/login and after login, overview, integrations, leases, source modal, reconciliation, billing, audit, mobile and tablet screenshots. Neutral colors, pill controls, readable labels and confined table scrolling checked; metric-note spacing corrected afterward. Screenshot directories [before](evidence/ui/before), [after](evidence/ui/after). Credentials absent; traces/raw logs excluded.
+
+`pip-audit` with no advisory suppressions: no known vulnerabilities; unpublished local `portfolio-ledger` package cannot be checked on PyPI. `npm audit --audit-level=high`: zero vulnerabilities. CI includes these scans; image OS packages are not represented as scanned.
+
+`docker compose up --build -d`: explicit release job migrated b003 on the existing volume, API healthy, separate worker and non-root Nginx running with read-only runtime filesystems/capability restrictions. Historical migration test also applies b003 over a real b002 receipt and verifies unchanged historical row plus disabled registered identity.
+
+`make acceptance`: [sanitized output](evidence/acceptance-release-ui.json). **Passed**, initial **190.983s**, replay **82.724s**, full **275.891s**; 10,002 accepted rows / two quarantines, then zero accepted / 10,002 duplicates / two quarantines. **10,000 postings / ZAR 18,750,000.00**. Darwin arm64/Python 3.12.15, dirty base 3a605a0, concurrent verification. This is slower than historical runs; no controlled performance conclusion is supported.
+
+`.venv/bin/python scripts/backup_restore.py`: first restore into new target failed on default public schema; corrected disposable-target restore flags. Repeat **passed**: source unchanged, 13 business table hashes/counts equal, ledger ZAR 19,500.00, restored immutability trigger rejected mutation. [Evidence](evidence/backup-restore.json). Private dump and disposable database removed. This verifies local recovery only, not hosted backups.
+
+Hosted candidate CI, public HTTPS release and cloud restore remain unverified; public release is NO-GO pending those gates.
+
+Final backend expansion: **40 passed / 18.34s / 85%**, including synthetic-scope revocation after public login. Public Chrome check initially exposed two dialog-test timing/focus assumptions and an existing heading locator typo; after corrections **1 passed / 4.2s**. All five business mutation APIs returned 403 and before/after business IDs/ledger total matched: [public review evidence](evidence/public-review.json). Nginx production syntax passed in actual non-root image; production Compose refuses missing values and validates with synthetic placeholders. Alembic check reports no pending upgrade operations. Runtime IDs verified 10001/10001/101.

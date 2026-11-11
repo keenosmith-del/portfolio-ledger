@@ -1,3 +1,4 @@
+import { Badge, Table, Pager, Panel } from "./components/Workspace";
 import {
   useCallback,
   useEffect,
@@ -12,11 +13,8 @@ import {
   BookOpen,
   Building2,
   Check,
-  ChevronLeft,
-  ChevronRight,
   CircleHelp,
   FileCheck2,
-  FileText,
   History,
   Layers3,
   LayoutDashboard,
@@ -87,133 +85,14 @@ const currentMonth = () =>
   })
     .format(new Date())
     .replace("/", "-");
-function Badge({ value }: { value: string }) {
-  return (
-    <span
-      className={`badge ${["completed", "accepted", "resolved", "active", "ready", "eligible"].includes(value) ? "good" : ["quarantined", "failed", "high", "open", "partially_completed", "stale"].includes(value) ? "warn" : ""}`}
-    >
-      <span />
-      {readable(value)}
-    </span>
-  );
-}
-function Empty({ children }: { children: ReactNode }) {
-  return (
-    <div className="empty">
-      <FileText size={28} />
-      <p>{children}</p>
-    </div>
-  );
-}
-function Table<T extends { id: string }>({
-  rows,
-  columns,
-  onClick,
-}: {
-  rows: T[];
-  columns: { label: string; render: (row: T) => ReactNode }[];
-  onClick?: (row: T) => void;
-}) {
-  return (
-    <div className="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            {columns.map((c) => (
-              <th key={c.label}>{c.label}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.id}>
-              {columns.map((c, i) => (
-                <td key={c.label}>
-                  {i === 0 && onClick ? (
-                    <button
-                      className="text-button"
-                      onClick={() => onClick(row)}
-                    >
-                      {c.render(row)}
-                    </button>
-                  ) : (
-                    c.render(row)
-                  )}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {!rows.length && <Empty>No records match this view.</Empty>}
-    </div>
-  );
-}
-function Pager({
-  offset,
-  total,
-  onChange,
-}: {
-  offset: number;
-  total: number;
-  onChange: (n: number) => void;
-}) {
-  return (
-    <div className="pager">
-      <span>
-        {total
-          ? `${offset + 1}–${Math.min(offset + 25, total)} of ${total}`
-          : "0 records"}
-      </span>
-      <div>
-        <button
-          className="icon-button"
-          aria-label="Previous page"
-          disabled={offset === 0}
-          onClick={() => onChange(Math.max(0, offset - 25))}
-        >
-          <ChevronLeft size={16} />
-        </button>
-        <button
-          className="icon-button"
-          aria-label="Next page"
-          disabled={offset + 25 >= total}
-          onClick={() => onChange(offset + 25)}
-        >
-          <ChevronRight size={16} />
-        </button>
-      </div>
-    </div>
-  );
-}
-function Panel({
-  title,
-  subtitle,
-  children,
-  action,
-}: {
-  title: string;
-  subtitle?: string;
-  children: ReactNode;
-  action?: ReactNode;
-}) {
-  return (
-    <section className="panel">
-      <div className="panel-heading">
-        <div>
-          <h2>{title}</h2>
-          {subtitle && <p>{subtitle}</p>}
-        </div>
-        {action}
-      </div>
-      {children}
-    </section>
-  );
-}
 
 export default function App() {
   const [identity, identityState] = useState<Identity | null>(null),
     [initializing, setInitializing] = useState(true);
+  const [publicReview, setPublicReview] = useState(false);
+  const [sources, setSources] = useState<
+    { source_key: string; adapter: string }[]
+  >([]);
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]),
     [portfolioId, setPortfolioId] = useState("");
   const [tab, setTab] = useState<Tab>("Overview"),
@@ -248,12 +127,15 @@ export default function App() {
     [detailOffset, setDetailOffset] = useState(0);
   const portfolio = portfolios.find((p) => p.id === portfolioId),
     base = `/api/portfolios/${portfolioId}`,
-    readOnly = identity?.role === "reviewer";
+    readOnly = identity?.read_only ?? identity?.role === "reviewer";
   const saveIdentity = (value: Identity | null) => {
     setIdentity(value);
     identityState(value);
   };
   useEffect(() => {
+    api<{ public_review_enabled: boolean }>("/api/auth/options")
+      .then((value) => setPublicReview(value.public_review_enabled))
+      .catch(() => {});
     api<Identity>("/api/auth/me")
       .then(saveIdentity)
       .catch(() => {})
@@ -268,6 +150,15 @@ export default function App() {
         })
         .catch((e) => setError(String(e)));
   }, [identity?.email]);
+  useEffect(() => {
+    setSources([]);
+    if (portfolioId)
+      api<{ source_key: string; adapter: string }[]>(
+        base + "/integration-sources",
+      )
+        .then(setSources)
+        .catch((e) => setError(String(e)));
+  }, [portfolioId]);
   const load = useCallback(async () => {
     if (!portfolioId) return;
     setLoading(true);
@@ -533,13 +424,11 @@ export default function App() {
             <Layers3 /> PortfolioLedger
           </div>
           <div>
-            <span className="eyebrow">
-              PROPERTY FINANCE, WITH A PAPER TRAIL
-            </span>
+            <span className="eyebrow">Synthetic finance operations</span>
             <h1>
-              Different systems.
+              Source to statement.
               <br />
-              One dependable ledger.
+              Every change traceable.
             </h1>
             <p>
               Bring lease data, financial history and monthly administration
@@ -562,7 +451,7 @@ export default function App() {
           </small>
         </div>
         <main className="login-form">
-          <span className="eyebrow">WORKSPACE ACCESS</span>
+          <span className="eyebrow">Private workspace</span>
           <h2>Welcome back</h2>
           <p>Sign in to your synthetic finance workspace.</p>
           <form onSubmit={signIn}>
@@ -595,6 +484,23 @@ export default function App() {
               <ArrowRight size={17} />
             </button>
           </form>
+          {publicReview && (
+            <button
+              className="button subtle"
+              onClick={() =>
+                action(
+                  async () =>
+                    saveIdentity(
+                      await post<Identity>("/api/auth/public-review", {}),
+                    ),
+                  "",
+                )
+              }
+              disabled={busy}
+            >
+              Explore read-only demo <ArrowRight size={17} />
+            </button>
+          )}
           <div className="login-note">
             <ShieldCheck size={19} />
             <p>
@@ -614,7 +520,7 @@ export default function App() {
           </span>
           PortfolioLedger
         </div>
-        <div className="workspace-label">FINANCE WORKSPACE</div>
+        <div className="workspace-label">Finance workspace</div>
         <nav aria-label="Main navigation">
           {navigation.map(({ name, icon: Icon }) => (
             <button
@@ -636,7 +542,7 @@ export default function App() {
             <ShieldCheck size={19} />
             <strong>Synthetic workspace</strong>
             <p>Invented portfolios. Real database operations.</p>
-            <span className="tiny-label">NO LIVE FINANCIAL TRANSACTIONS</span>
+            <span className="tiny-label">No live financial transactions</span>
           </div>
           <button
             className="help-link"
@@ -706,8 +612,22 @@ export default function App() {
             Workspace <span>/</span> <strong>{tab}</strong>
           </div>
           <div className="top-right">
+            <button
+              className="icon-button mobile-logout"
+              aria-label="Sign out"
+              onClick={() =>
+                action(async () => {
+                  await post("/api/auth/logout");
+                  saveIdentity(null);
+                  setPortfolios([]);
+                  setPortfolioId("");
+                }, "")
+              }
+            >
+              <LogOut size={18} />
+            </button>
             <span className="environment">
-              <span /> LOCAL DEMO
+              <span /> {readOnly ? "Read-only demo" : "Private demo"}
             </span>
             <span className="top-avatar">PL</span>
           </div>
@@ -743,7 +663,7 @@ export default function App() {
           <div className="page-title">
             <div>
               <span className="eyebrow">
-                {tab === "Overview" ? "PORTFOLIO OVERVIEW" : tab.toUpperCase()}
+                {tab === "Overview" ? "Portfolio overview" : tab}
               </span>
               <h1>{title[tab]}</h1>
               <p>
@@ -758,7 +678,7 @@ export default function App() {
                 onClick={() => go("Integrations")}
               >
                 <Upload size={16} />
-                Import data
+                {readOnly ? "View integrations" : "Import data"}
               </button>
             )}
           </div>
@@ -883,7 +803,7 @@ export default function App() {
                   <div className="step-icon">
                     <ShieldCheck size={22} />
                   </div>
-                  <span className="eyebrow">THE NEXT RIGHT STEP</span>
+                  <span className="eyebrow">Next action</span>
                   <h2>
                     {overview.open_exceptions
                       ? "Bring exceptions into focus."
@@ -1008,26 +928,35 @@ export default function App() {
                     />
                   </label>
                   <label>
-                    Stable source key
-                    <input
+                    Configured integration source
+                    <select
                       name="source_key"
-                      defaultValue={portfolio?.adapter + "-demo"}
-                      key={portfolio?.adapter}
-                      pattern="[A-Za-z0-9_.:\-]+"
-                      maxLength={100}
+                      key={portfolioId}
                       required
-                      disabled={readOnly}
-                    />
+                      disabled={readOnly || !sources.length}
+                    >
+                      {sources.map((source) => (
+                        <option
+                          key={source.source_key}
+                          value={source.source_key}
+                        >
+                          {source.source_key}
+                        </option>
+                      ))}
+                    </select>
                   </label>
-                  <button className="button dark" disabled={busy || readOnly}>
+                  <button
+                    className="button dark"
+                    disabled={busy || readOnly || !sources.length}
+                  >
                     <Upload size={15} />
                     Queue import
                   </button>
                 </form>
                 <p className="inline-note">
-                  Keep the source key consistent to deduplicate provider records
-                  across files. A new browser request receives a new idempotency
-                  key.
+                  Only registered integration sources can publish records.
+                  Replays retain the original source identity and financial
+                  lineage.
                 </p>
               </Panel>
               <Panel
@@ -1638,48 +1567,55 @@ export default function App() {
                   <h3>{readable(review.reason)}</h3>
                 </div>
                 <pre>{JSON.stringify(review.evidence, null, 2)}</pre>
-                {!["resolved", "dismissed"].includes(review.status) && (
-                  <form
-                    className="review-form"
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      void action(async () => {
-                        await post(base + `/exceptions/${review.id}/resolve`, {
-                          status: reviewState,
-                          rationale,
-                        });
-                        setReview(null);
-                      }, "Review recorded in the audit trail.");
-                    }}
-                  >
-                    <label>
-                      Next status
-                      <select
-                        value={reviewState}
-                        onChange={(e) => setReviewState(e.target.value)}
+                {!readOnly &&
+                  !["resolved", "dismissed"].includes(review.status) && (
+                    <form
+                      className="review-form"
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        void action(async () => {
+                          await post(
+                            base + `/exceptions/${review.id}/resolve`,
+                            {
+                              status: reviewState,
+                              rationale,
+                            },
+                          );
+                          setReview(null);
+                        }, "Review recorded in the audit trail.");
+                      }}
+                    >
+                      <label>
+                        Next status
+                        <select
+                          value={reviewState}
+                          onChange={(e) => setReviewState(e.target.value)}
+                        >
+                          <option value="investigating">Investigating</option>
+                          <option value="resolved">Resolved</option>
+                          <option value="dismissed">Dismissed</option>
+                        </select>
+                      </label>
+                      <label>
+                        Review rationale
+                        <textarea
+                          value={rationale}
+                          onChange={(e) => setRationale(e.target.value)}
+                          minLength={5}
+                          maxLength={1000}
+                          required
+                          placeholder="Explain what the source evidence shows…"
+                        />
+                      </label>
+                      <button
+                        className="button dark"
+                        disabled={busy || readOnly}
                       >
-                        <option value="investigating">Investigating</option>
-                        <option value="resolved">Resolved</option>
-                        <option value="dismissed">Dismissed</option>
-                      </select>
-                    </label>
-                    <label>
-                      Review rationale
-                      <textarea
-                        value={rationale}
-                        onChange={(e) => setRationale(e.target.value)}
-                        minLength={5}
-                        maxLength={1000}
-                        required
-                        placeholder="Explain what the source evidence shows…"
-                      />
-                    </label>
-                    <button className="button dark" disabled={busy || readOnly}>
-                      Save review
-                      <Check size={15} />
-                    </button>
-                  </form>
-                )}
+                        Save review
+                        <Check size={15} />
+                      </button>
+                    </form>
+                  )}
               </>
             )}
             {jobDetail && (
@@ -1733,25 +1669,27 @@ export default function App() {
                   }
                   onChange={(n) => void inspectJob(jobDetail.job, n)}
                 />
-                <button
-                  className="button dark"
-                  disabled={busy || readOnly}
-                  onClick={() =>
-                    action(async () => {
-                      await api<Job>(
-                        base + `/imports/${jobDetail.job.id}/replay`,
-                        {
-                          method: "POST",
-                          headers: { "Idempotency-Key": crypto.randomUUID() },
-                        },
-                      );
-                      setJobDetail(null);
-                    }, "Replay queued. Existing financial events will be deduplicated.")
-                  }
-                >
-                  <RefreshCw size={15} />
-                  Replay this import
-                </button>
+                {!readOnly && (
+                  <button
+                    className="button dark"
+                    disabled={busy || readOnly}
+                    onClick={() =>
+                      action(async () => {
+                        await api<Job>(
+                          base + `/imports/${jobDetail.job.id}/replay`,
+                          {
+                            method: "POST",
+                            headers: { "Idempotency-Key": crypto.randomUUID() },
+                          },
+                        );
+                        setJobDetail(null);
+                      }, "Replay queued. Existing financial events will be deduplicated.")
+                    }
+                  >
+                    <RefreshCw size={15} />
+                    Replay this import
+                  </button>
+                )}
               </>
             )}
             {previewDetail && (

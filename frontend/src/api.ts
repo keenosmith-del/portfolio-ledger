@@ -1,4 +1,5 @@
 export interface Identity {
+  read_only: boolean;
   email: string;
   role: "admin" | "analyst" | "reviewer";
   csrf: string;

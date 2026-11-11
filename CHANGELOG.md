@@ -25,3 +25,14 @@
 - Public reviewer isolation/expiry/reset, external integrations, cloud storage/telemetry, scheduling, claims and real financial transactions excluded.
 
 Chronology and initial failed checkpoints remain in Git and docs rather than being rewritten as an always-green history.
+
+## 0.2.0 candidate — White design system and release boundaries, 2026-11-11
+
+- Replaced legacy palette throughout login/all six workspace views with neutral tokens, system typography, pill controls, rounded cards/search, readable tables and mobile logout.
+- Extracted shared presentation components; preserved API-backed workflows, filters, portfolio state, financial lineage, immutable previews and original browser assertions.
+- Added b003 integration-source registry, disabled historical identities pending review, configured-source upload/replay/worker checks and composite ownership constraints.
+- Added bounded password-free public read-only reviewer sessions scoped to explicit synthetic portfolios; production public mode denies all business writes.
+- Fail-closed production settings, dynamic Alembic readiness, host/proxy controls, streamed request limits, error headers, session cleanup/caps and review throttling.
+- Separate migration release task, non-root/capability-restricted containers, standalone production contract and owner-run distinct runtime grants, tested through a complete financial journey.
+- Added actual local backup/restore drill, dependency scans, style guard, WCAG browser audit and responsive/keyboard/read-only regressions.
+- Verified 39 backend tests and six browser cases at this checkpoint; actual 10k import/replay and backup evidence linked in validation. Public-browser/restart final checks continue in the journal. Public deployment/hosted CI remain gated, no cloud claim.

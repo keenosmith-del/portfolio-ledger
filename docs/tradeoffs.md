@@ -14,3 +14,7 @@ Verified capability is bounded synthetic finance operations, not a commercial pr
 10. **CI is code, not a claimed green run.** Local checks/build/browser evidence exist; hosted Actions success only after push and actual run inspection. Upstream Starlette TestClient currently emits an httpx deprecation warning.
 
 First follow-up: tighter generated API contracts; profile/stage import data, comprehensive malicious parser fuzzing, isolated reviewer lifecycle, then an approved TLS deployment and backup restore drill. No optional claims/AI features are added before these core operational concerns.
+
+## Iteration 005/006 updates
+
+Source-key entry has been replaced by operator-managed registered identities (b003), including composite job ownership and unique upstream-account identity. Public review is now read-only with bounded dedicated sessions; isolated public writes/reset remain excluded. Runtime roles, production configuration and local restore are implemented/tested, while actual cloud infrastructure/HTTPS/alerts/hosted restore remain operator gates. Explicit response DTO/code generation remains deferred to keep financial response behavior stable during this release.

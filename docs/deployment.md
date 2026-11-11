@@ -1,28 +1,78 @@
-# Deployment preparation and actual status
+# Release deployment contract
 
-**No public frontend/API deployment has been created or verified.** Local images and stack verification are tracked in validation evidence. GitHub repository exists and authenticated GitHub access was checked, but GitHub authentication does not supply PostgreSQL/worker hosting credentials.
+**Current verdict: NO-GO for public deployment.** No public URL or cloud infrastructure is claimed. Local full-stack verification is documented separately in validation. Operator-supplied HTTPS ingress, TLS PostgreSQL, role secrets, backup scheduling and alerting must be configured and verified, and candidate GitHub Actions must pass before release.
 
-No Render/Neon/Cloudflare/Vercel/AWS environment credentials were present in the inspected environment variable names. No new cloud accounts, paid resources or pretend live URLs were created. The available static-site hosting workflow would not provision the required PostgreSQL/API/durable worker; publishing only that frontend would fail the product's acceptance criteria. Public writable demo also needs reviewer isolation/expiry/quota controls (see security notes).
-
-## Container deployment checklist
-
-- Provision PostgreSQL 16+ with TLS, backups and separate migration/runtime roles.
-- Supply DATABASE_URL through secret management, plus private DEMO_PASSWORD for initial seed only.
-- Run `alembic upgrade head` from backend as a one-off release task; then seed only explicitly synthetic demo namespaces.
-- Run `uvicorn app.main:app --host 0.0.0.0` API and `python -m app.workers.runner` as separate long-lived services. Use `/ready` readiness checks and SIGTERM grace period sufficient for a bounded import. No BackgroundTasks durability assumption.
-- Build frontend image with Nginx same-origin `/api` proxy. Replace Docker-internal hostname with actual private API upstream, or deploy all services on the same container network. Static frontend hosted separately requires a reviewed auth/domain proxy design; SameSite Strict is intentionally not disabled for convenience.
-- Set APP_ENV=production, COOKIE_SECURE=true, explicit HTTPS ALLOWED_ORIGINS. Configure trusted reverse proxy and TLS. Production container compose overrides are operator-specific; shipped compose is loopback local development.
-- Configure ingress body/time limits, read/write quotas, per-reviewer expiry/reset, session cleanup, rate-window retention and alerting.
-- Verify migration from blank, restart persistence, browser login/import/replay/review/preview/export and recovery at the actual deployed HTTPS URL. Run load acceptance against an isolated namespace, never an existing shared financial database.
-
-## Git publishing
-
-Actual implementation branch and commits: `git log --oneline codex/portfolio-ledger-build`. Remote: `https://github.com/keenosmith-del/portfolio-ledger.git`. Changes are local incremental commits until explicitly pushed; no CI run is claimed unless Actions was actually triggered and inspected.
-
-When ready to publish the branch:
+## Verified local workflow
 
 ```sh
-git push -u origin codex/portfolio-ledger-build
+python3 scripts/init_env.py
+docker compose up --build -d
+# release migrates and explicitly seeds; ordinary API startup never migrates
+make check
+make test
+make acceptance
+make e2e
+.venv/bin/python scripts/backup_restore.py
 ```
 
-Then configure the CI workflow and choose a backend/worker/database provider whose current plan explicitly supports persistent worker processes without unexpected charges. Pricing/free-tier availability is intentionally not asserted in this document.
+Open http://localhost:5173. Use private DEMO_PASSWORD in `.env`, never paste it into source control. Admin and analyst are private interactive accounts; reviewer@portfolioledger.test is read only. Select November 2026. The standalone public reviewer has no published password.
+
+To exercise the password-free reviewer locally, with all business APIs locked:
+
+```sh
+PUBLIC_REVIEW_ENABLED=true PUBLIC_DEMO_READ_ONLY=true docker compose up -d api
+npm --prefix frontend run test:public
+# Restore the private interactive local configuration:
+docker compose up -d api
+```
+
+Click **Explore read-only demo** on sign-in. Inspect imports/evidence, ledger, existing exceptions, billing preview CSV and audit. Public mutations return 403. This is loopback testing, not public hosting.
+
+## Production topology and explicit release
+
+Supported shape: HTTPS ingress -> Nginx/React same origin -> private API, verified-TLS PostgreSQL, separate long-lived worker. Standalone `compose.production.yaml` has no development DB/password fallback and publishes only loopback Nginx port 8080. Operator must front it with HTTPS, keep API/DB private and restrict ingress/proxy network trust. `frontend/nginx.production.conf` asserts HTTPS only behind that ingress; do not expose it directly over public HTTP.
+
+Supply secrets privately (never CLI literals or committed files):
+
+| Variable | Required meaning |
+|---|---|
+| MIGRATION_DATABASE_URL | Owner PostgreSQL DSN, TLS verified by operator, one-off release/role job only |
+| API_DATABASE_URL / WORKER_DATABASE_URL | Distinct non-owner runtime DSNs, private passwords >=20 chars, `sslmode=verify-full` and trusted CA material |
+| PRODUCTION_ORIGINS | JSON list of exact HTTPS browser origins |
+| PRODUCTION_HOSTS | JSON list of exact allowed hostnames matching origins |
+| PRODUCTION_PROXY_IPS | JSON list of trusted Nginx IP addresses or bounded private CIDRs; no wildcard trust |
+| API_DB_ROLE / WORKER_DB_ROLE | Distinct dedicated database role names |
+| API_DB_PASSWORD / WORKER_DB_PASSWORD | Private initial role credentials, >=20 chars; owner job leaves existing passwords unchanged |
+| DATABASE_SCHEMA | Target schema, default public, for owner-run runtime grants |
+
+Never run the normal app with migration-owner credentials in production. `/ready` rejects owner membership and privileged roles. Provision production CA certificates as operator-managed read-only mounts if required by the DB provider. No TLS verification disabling is supported.
+
+1. Review historical source inventory, ownership and existing PUBLIC grants. Back up before migration; never reset an existing database. Registry b003 preserves all keys disabled until explicitly reviewed. Provision/enable legitimate source accounts through owner-controlled release SQL; uploads cannot do it. The unique `(portfolio_id, adapter, upstream_account)` must identify an independently authorized upstream account, never a second alias for one feed.
+2. Run migration as explicit release task:
+
+   ```sh
+   docker compose -f compose.production.yaml build
+   docker compose -f compose.production.yaml run --rm release
+   ```
+
+3. In an explicitly synthetic environment only, seed through a private owner job with `SEED_SYNTHETIC_DEMO=true` and a private DEMO_PASSWORD. Do not seed arbitrary existing production/customer data. For the local owner-run executable the command is `make seed`; production operator must provide the target owner DSN privately. Seed prepares existing reconciliation/preview records for read-only browsing.
+4. Apply runtime roles with migration owner DSN and role/password environment variables in an owner-controlled shell:
+
+   ```sh
+   APP_ENV=development .venv/bin/python -m app.operations.roles
+   ```
+
+   This requires MIGRATION_DATABASE_URL and role secrets, and rejects privileged/inheriting/table-owner roles. It revokes schema CREATE from PUBLIC and grants only application operations. Reapply grants after future table migrations. Verify database-level PUBLIC/default privileges and revoke unrelated role memberships before exposing the service.
+5. Start runtime independently of release jobs:
+
+   ```sh
+   docker compose -f compose.production.yaml up -d api worker web
+   ```
+
+6. Verify actual HTTPS cookies, exact-origin/Host/proxy handling, current Alembic readiness, role isolation, denied direct public writes, source evidence and CSV from a real browser. Verify worker recovery and restart persistence. Schedule encrypted backups and perform a restore drill in the hosted environment. Configure error/availability alerts and retention. Only then consider public release GO.
+
+Private interactive hosting requires a separately access-controlled environment with public reviewer disabled and `PUBLIC_DEMO_READ_ONLY=false`; the shipped public configuration deliberately offers no public business writes. Provider selection/provisioning and costs require owner authorization; no paid resources have been created.
+
+## Git and CI gate
+
+Release work is on `codex/portfolio-ledger-release-ui-v2`, starting at 3a605a0 with preserved dirty local changes. Prior build PR #1 is merged; remote main was inspected at 21275fa. Candidate branch publishing/PR/Actions status is recorded in final evidence only when actually performed. A workflow file alone is not a passing hosted run. Do not merge or release with failed/unrun checks.

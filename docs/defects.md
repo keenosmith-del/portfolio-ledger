@@ -30,3 +30,19 @@ Application defects will be appended with the failing test/command and passing r
 | D013 | Final direct-SQL boundary regressions both failed: preview could reference another portfolio's pricing and same event/revision could be inserted under different financial kinds | Add composite pricing ownership FK and partial unique non-reversal event/revision index through new Alembic revision | Red: 2 failed in 0.74s; fix/rerun pending |
 
 | D013 fixed | Scope/identity enforced only by service for two paths | Alembic b002 adds composite pricing FK and partial event/revision uniqueness, plus state/revision checks | 26 passed, 85% coverage, 9.23s; both new direct-DB tests now pass |
+
+## D014–D018 — Iteration 005 release regression checkpoint
+
+Five new regressions failed before implementation (5 failed, 1.39s): arbitrary source accepted (202), dynamic migration-head helper missing, early errors lacked security headers, production accepted local defaults, and no public-review route/configuration. Additive b003 registry, dynamic head checks, uniform response headers, strict production settings and scoped read-only reviewer close these cases (31 tests green before expansion; 35 green after expansion). Early header fix required a second correction, captured as 4 pass/1 fail first. No historical migration rewritten.
+
+## D019 — Verification infrastructure and static checks
+
+Docker initially stopped and top-level launcher missing; nested Docker Desktop launch and approved local access resolved setup errors. Baseline formatting failed in 11 inherited dirty files; formatter corrected whitespace preserving semantic edits. First screenshot command used the wrong directory prefix and failed; corrected command captured actual before evidence. TypeScript detected two imports made unused by component extraction; removed, strict build passed. No app behavior assertions weakened.
+
+## D020 — Isolated restore default-schema conflict
+
+First pg_restore into a new disposable database exited 1 because its default public schema already existed. Added clean/if-exists only for the newly created restore target; never applied it to the source. Repeat passed: 13 business tables equal by count/content hash, ZAR 19,500.00 ledger, restored evidence trigger rejects updates, source unchanged. Private dump removed and disposable target dropped in finally.
+
+## D021 — Public-browser dialog synchronization
+
+First public case timed out navigating behind an asynchronously opened import modal: Escape had fired before open. Second rerun reached evidence/CSV and all direct-write denial assertions but incorrectly expected Close to remain focused after clicking Download. Helper now waits for dialog, focuses Close, sends Escape and asserts disappearance. Original finance assertions retained; independent design test still checks automatic focus/restoration. Public business-record comparison remained unchanged. Final public rerun recorded in journal.

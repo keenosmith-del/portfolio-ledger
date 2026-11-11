@@ -105,3 +105,14 @@ test("mobile viewport remains usable", async ({ page }) => {
     fullPage: true,
   });
 });
+
+// Closing a browser context does not revoke its server session. Keep repeated QA bounded.
+test.afterEach(async ({ page }) => {
+  const response = await page.request.get("/api/auth/me");
+  if (response.ok()) {
+    const identity = await response.json();
+    await page.request.post("/api/auth/logout", {
+      headers: { "X-CSRF-Token": identity.csrf },
+    });
+  }
+});

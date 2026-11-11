@@ -1,0 +1,63 @@
+{
+  "status": "passed",
+  "timestamp_utc": "2026-11-11T12:40:36.226211+00:00",
+  "scope": "local Compose PostgreSQL; new disposable restore database removed afterward",
+  "source_unchanged": true,
+  "restored_business_records_equal": true,
+  "restored_immutability_trigger": true,
+  "tables": {
+    "portfolios": {
+      "count": 2,
+      "sha256": "ab417a59069299b9528e8f20b585c39fa23971971b1d531a6925e6e6eed3bd62"
+    },
+    "integration_sources": {
+      "count": 2,
+      "sha256": "1ec07882dcd37c25401151bff444cdc2bbd51a0fa9580fd480470f7266f85af5"
+    },
+    "leases": {
+      "count": 3,
+      "sha256": "37771074dc27fbefb65281c9d645ae670d1c7dd1886ed88779878d04701afd3a"
+    },
+    "lease_versions": {
+      "count": 3,
+      "sha256": "547d861a783bc6e998d5312349d25d6b6f1bba7a4fbbfafb55e0545d424957de"
+    },
+    "ledger_entries": {
+      "count": 9,
+      "sha256": "db08c6227bf4cc77aace0601e4fa2780b995e8f946caf29ec66d63678f46462c"
+    },
+    "raw_records": {
+      "count": 104,
+      "sha256": "d2dbe6e4c72e5bec03d25684e690f53589f06c33aa341e28804bca8368a4e613"
+    },
+    "import_jobs": {
+      "count": 12,
+      "sha256": "be365f4353915849e33a825cbe66ac5deb1bebd400ad94bb92da7aff5969b067"
+    },
+    "pricing_versions": {
+      "count": 2,
+      "sha256": "6420b399458561c03f803c26dbf6b72ef0842cd49000605cb6be4ab3c215d70b"
+    },
+    "reconciliations": {
+      "count": 8,
+      "sha256": "4124d58771e4a44998b86e365f7ef0adbffc4491d9549cdda8981532594e27b8"
+    },
+    "exceptions": {
+      "count": 119,
+      "sha256": "35a1d8b9e4525b6e5f0e8b1b28c4ffd2763c89da0ee23bad914ed15530133861"
+    },
+    "billing_previews": {
+      "count": 8,
+      "sha256": "ac087ca813e885d8d8668d75048271660501215fe72ee67b75162379d93f4f86"
+    },
+    "billing_preview_lines": {
+      "count": 15,
+      "sha256": "55ce74615f13266bad1ead67869deb14514776f46e158ea542ac502e377f9a22"
+    },
+    "audit_events": {
+      "count": 48,
+      "sha256": "08275b2eeb11e894b1b395fdf3edb3df8baa55dd8f74776ca2c9f926a4bae236"
+    },
+    "ledger_total": "19500.00"
+  }
+}

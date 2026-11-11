@@ -10,7 +10,14 @@ from sqlalchemy import func, select, text
 from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.db.models import ExceptionRecord, ImportJob, LedgerEntry, Preview, RawRecord, now
+from app.db.models import (
+    ExceptionRecord,
+    ImportJob,
+    LedgerEntry,
+    Preview,
+    RawRecord,
+    now,
+)
 from app.integrations.synthetic import atlas_feed, meridian_feed
 from app.services.finance import preview, reconcile
 from app.services.ingestion import claim, enqueue, process
@@ -240,7 +247,8 @@ def test_idor_and_roles(
         assert other_entry
         raw_id = other_entry.raw_id
     response = client.post(
-        "/api/auth/login", json={"email": "analyst@test.invalid", "password": "TestPassword123!"}
+        "/api/auth/login",
+        json={"email": "analyst@test.invalid", "password": "TestPassword123!"},
     )
     client.headers["X-CSRF-Token"] = response.json()["csrf"]
     assert len(client.get("/api/portfolios").json()) == 1
@@ -250,17 +258,20 @@ def test_idor_and_roles(
     assert client.get(a + "/sources/" + raw_id).status_code == 404
     assert (
         client.post(
-            b + "/reconciliations", json={"month": "2026-11", "cutoff": now().isoformat()}
+            b + "/reconciliations",
+            json={"month": "2026-11", "cutoff": now().isoformat()},
         ).status_code
         == 404
     )
     response = client.post(
-        "/api/auth/login", json={"email": "reader@test.invalid", "password": "TestPassword123!"}
+        "/api/auth/login",
+        json={"email": "public-review@portfolioledger.test", "password": "TestPassword123!"},
     )
     client.headers["X-CSRF-Token"] = response.json()["csrf"]
     assert (
         client.post(
-            a + "/reconciliations", json={"month": "2026-11", "cutoff": now().isoformat()}
+            a + "/reconciliations",
+            json={"month": "2026-11", "cutoff": now().isoformat()},
         ).status_code
         == 403
     )
@@ -391,7 +402,8 @@ def test_rate_limit_and_origin(client: TestClient) -> None:
     )
     for _ in range(10):
         last = client.post(
-            "/api/auth/login", json={"email": "nobody@test.invalid", "password": "invalid"}
+            "/api/auth/login",
+            json={"email": "nobody@test.invalid", "password": "invalid"},
         )
     assert last.status_code == 429
     assert last.headers["Retry-After"] == "60"
@@ -416,7 +428,9 @@ def test_cutoff_excludes_late_financial_publication(
 
 
 def test_failed_worker_attempts_recover_and_stop(
-    factory: sessionmaker[Session], demo: dict[str, Any], monkeypatch: pytest.MonkeyPatch
+    factory: sessionmaker[Session],
+    demo: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     import app.workers.runner as runner
 

@@ -57,6 +57,22 @@ class Portfolio(Entity):
     __tablename__ = "portfolios"
     name: Mapped[str] = mapped_column(String(120), unique=True)
     adapter: Mapped[str] = mapped_column(String(30))
+    synthetic_demo: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=text("false")
+    )
+
+
+class IntegrationSource(Base):
+    __tablename__ = "integration_sources"
+    portfolio_id: Mapped[str] = mapped_column(ForeignKey("portfolios.id"), primary_key=True)
+    source_key: Mapped[str] = mapped_column(String(100), primary_key=True)
+    adapter: Mapped[str] = mapped_column(String(30))
+    upstream_account: Mapped[str] = mapped_column(String(120))
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True, server_default=text("true"))
+    __table_args__ = (
+        UniqueConstraint("portfolio_id", "source_key", "adapter", name="uq_source_identity"),
+        UniqueConstraint("portfolio_id", "adapter", "upstream_account", name="uq_source_upstream"),
+    )
 
 
 class Access(Base):
@@ -116,6 +132,15 @@ class ImportJob(PortfolioEntity):
     quarantined: Mapped[int] = mapped_column(Integer, default=0)
     error: Mapped[str | None] = mapped_column(String(250))
     __table_args__ = (
+        ForeignKeyConstraint(
+            ["portfolio_id", "source_key", "adapter"],
+            [
+                "integration_sources.portfolio_id",
+                "integration_sources.source_key",
+                "integration_sources.adapter",
+            ],
+            name="fk_import_source",
+        ),
         UniqueConstraint("portfolio_id", "idempotency_key"),
         UniqueConstraint("portfolio_id", "id"),
         CheckConstraint(
@@ -145,7 +170,8 @@ class RawRecord(PortfolioEntity):
         ),
         UniqueConstraint("job_id", "row_number"),
         CheckConstraint(
-            "status IN ('pending','accepted','duplicate','quarantined')", name="ck_raw_status"
+            "status IN ('pending','accepted','duplicate','quarantined')",
+            name="ck_raw_status",
         ),
         UniqueConstraint("portfolio_id", "id"),
         Index("ix_raw_portfolio_external", "portfolio_id", "external_id"),
@@ -230,7 +256,8 @@ class LedgerEntry(PortfolioEntity):
             ["portfolio_id", "raw_id"], ["raw_records.portfolio_id", "raw_records.id"]
         ),
         ForeignKeyConstraint(
-            ["portfolio_id", "reverses_id"], ["ledger_entries.portfolio_id", "ledger_entries.id"]
+            ["portfolio_id", "reverses_id"],
+            ["ledger_entries.portfolio_id", "ledger_entries.id"],
         ),
         UniqueConstraint("portfolio_id", "id"),
         UniqueConstraint("portfolio_id", "source_key", "external_id", "revision", "kind"),
@@ -278,7 +305,8 @@ class ExceptionRecord(PortfolioEntity):
     evidence: Mapped[dict[str, Any]] = mapped_column(JSON)
     __table_args__ = (
         ForeignKeyConstraint(
-            ["portfolio_id", "run_id"], ["reconciliations.portfolio_id", "reconciliations.id"]
+            ["portfolio_id", "run_id"],
+            ["reconciliations.portfolio_id", "reconciliations.id"],
         ),
         ForeignKeyConstraint(["portfolio_id", "lease_id"], ["leases.portfolio_id", "leases.id"]),
         UniqueConstraint("portfolio_id", "id"),
@@ -319,7 +347,8 @@ class PreviewLine(PortfolioEntity):
     amount: Mapped[Decimal] = mapped_column(Numeric(18, 2))
     __table_args__ = (
         ForeignKeyConstraint(
-            ["portfolio_id", "preview_id"], ["billing_previews.portfolio_id", "billing_previews.id"]
+            ["portfolio_id", "preview_id"],
+            ["billing_previews.portfolio_id", "billing_previews.id"],
         ),
         ForeignKeyConstraint(["portfolio_id", "lease_id"], ["leases.portfolio_id", "leases.id"]),
         UniqueConstraint("preview_id", "lease_id"),

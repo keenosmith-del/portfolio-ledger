@@ -6,11 +6,37 @@ from fastapi import HTTPException
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
-from app.db.models import ImportJob, Lease, LeaseVersion, LedgerEntry, RawRecord, Tenant, Unit, now
-from app.integrations.adapters import Record, digest, load_rows, normalize, row_reason, sanitized
+from app.db.models import (
+    ImportJob,
+    IntegrationSource,
+    Lease,
+    LeaseVersion,
+    LedgerEntry,
+    RawRecord,
+    Tenant,
+    Unit,
+    now,
+)
+from app.integrations.adapters import (
+    Record,
+    digest,
+    load_rows,
+    normalize,
+    row_reason,
+    sanitized,
+)
 from app.services.common import audit, lock
 
 MAX_ATTEMPTS = 3
+
+
+def configured_source(
+    db: Session, portfolio_id: str, adapter: str, source_key: str
+) -> IntegrationSource:
+    source = db.get(IntegrationSource, (portfolio_id, source_key))
+    if source is None or source.adapter != adapter or not source.enabled:
+        raise HTTPException(422, "source_not_configured")
+    return source
 
 
 def enqueue(
@@ -24,6 +50,7 @@ def enqueue(
     actor: str,
     correlation: str,
 ) -> tuple[ImportJob, bool]:
+    configured_source(db, portfolio_id, adapter, source_key)
     rows = load_rows(adapter, filename, content)
     # Store a canonical sanitized artifact. Unknown schema fields are refused by normalization;
     # only allowlisted source fields are retained in persistent storage.
@@ -142,7 +169,8 @@ def apply_record(db: Session, job: ImportJob, raw: RawRecord, record: Record) ->
         )
         tenant = db.scalar(
             select(Tenant).where(
-                Tenant.portfolio_id == job.portfolio_id, Tenant.external_id == record.tenant
+                Tenant.portfolio_id == job.portfolio_id,
+                Tenant.external_id == record.tenant,
             )
         )
         if unit is None:
@@ -233,6 +261,7 @@ def process(db: Session, job_id: str, fail_after: int | None = None) -> None:
     job = db.scalar(select(ImportJob).where(ImportJob.id == job_id).with_for_update())
     if job is None or job.status != "processing":
         return
+    configured_source(db, job.portfolio_id, job.adapter, job.source_key)
     lock(db, "finance:" + job.portfolio_id)
     # Serialize all imports for one source; concurrent workers may process other sources.
     lock(db, "source:" + job.portfolio_id + ":" + job.source_key)
