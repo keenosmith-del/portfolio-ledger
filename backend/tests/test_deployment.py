@@ -47,6 +47,8 @@ def test_proxy_dns_configuration_and_dynamic_port() -> None:
     valid = dict(
         app_env="production",
         cookie_secure=True,
+        public_review_enabled=True,
+        public_demo_read_only=True,
         database_url="postgresql+psycopg://api_runtime:synthetic-test-password-only@ep-test.aws.neon.tech/db?sslmode=verify-full",
         allowed_origins=["https://demo.example.invalid"],
         allowed_hosts=["demo.example.invalid", "healthcheck.railway.app"],
@@ -64,3 +66,22 @@ def test_proxy_dns_configuration_and_dynamic_port() -> None:
     ]:
         with pytest.raises(ValidationError):
             Settings(_env_file=None, **(valid | change))
+
+
+def test_client_tls_must_be_active_and_verified() -> None:
+    from types import SimpleNamespace
+
+    from app.operations.neon_check import verify_client_tls
+
+    connection: Any = SimpleNamespace(
+        pgconn=SimpleNamespace(ssl_in_use=True),
+        info=SimpleNamespace(get_parameters=lambda: {"sslmode": "verify-full"}),
+    )
+    verify_client_tls(connection)
+    connection.pgconn.ssl_in_use = False
+    with pytest.raises(ValueError):
+        verify_client_tls(connection)
+    connection.pgconn.ssl_in_use = True
+    connection.info.get_parameters = lambda: {"sslmode": "require"}
+    with pytest.raises(ValueError):
+        verify_client_tls(connection)

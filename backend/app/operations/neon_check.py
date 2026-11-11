@@ -27,13 +27,19 @@ def direct_neon_dsn(value: str) -> str:
     return url.set(drivername="postgresql").render_as_string(hide_password=False)
 
 
+def verify_client_tls(db: psycopg.Connection[Any]) -> None:
+    # Neon terminates client TLS at its proxy. pg_stat_ssl describes the separate
+    # proxy-to-compute connection; libpq verifies this actual client connection.
+    if not db.pgconn.ssl_in_use or db.info.get_parameters().get("sslmode") != "verify-full":
+        raise ValueError("Client database connection must use verified TLS")
+
+
 def inspect_connection(value: str, *, runtime: bool) -> dict[str, Any]:
     with psycopg.connect(direct_neon_dsn(value), connect_timeout=15) as db:
         ssl = db.execute(
             "SELECT ssl,version FROM pg_stat_ssl WHERE pid=pg_backend_pid()"
         ).fetchone()
-        if ssl is None or not ssl[0]:
-            raise ValueError("Database connection is not TLS encrypted")
+        verify_client_tls(db)
         flags = db.execute(
             "SELECT rolsuper,rolcreaterole,rolcreatedb,rolbypassrls FROM pg_roles WHERE rolname=current_user"
         ).fetchone()
@@ -64,7 +70,9 @@ def inspect_connection(value: str, *, runtime: bool) -> dict[str, Any]:
             raise ValueError("Database migration head is not current")
         return {
             "tls": True,
-            "tls_version": ssl[1],
+            "client_tls": True,
+            "backend_tls": bool(ssl and ssl[0]),
+            "backend_tls_version": ssl[1] if ssl else None,
             "certificate_mode": "verify-full",
             "direct_connection": True,
             "migration_heads": sorted(versions),

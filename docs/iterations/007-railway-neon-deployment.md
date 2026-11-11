@@ -11,3 +11,9 @@ Existing single Railway service failed during Railpack detection at repo root; e
 Railway CLI authorized and linked to existing deployment project. Neon CLI broad temporary OAuth blocked by automatic review; Console project-scoped key form prepared for owner storage. No cloud migration or successful deployment claimed.
 
 Railway rejected new legacy TOML opt-in. Replaced with current `.railway/railway.ts`; official SDK 3.16.0 is isolated from app dependencies. Actual plan succeeded with safe web updates and api/worker creation, zero destruction, variables unmanaged. Existing service renamed web; private DNS update succeeded. Hosted apply/rebuild pending.
+
+## Applied infrastructure and corrected gates
+
+Current IaC apply succeeded for web/api/worker, with private api/worker DNS and only web's generated domain (`web-production-6a3f45e7.up.railway.app`). No successful runtime/HTTPS app claim yet. Non-secret production/read-only flags set without owner credentials. Initial cloud API health 400/worker crash preceded database configuration.
+
+First CI 43069924214 failed in new test fixture, 43 passed/1 failed. Corrected fixture supplies public read-only flags explicitly. Full local follow-up 45 passed/20.07s/one warning, make check passed. Neon actual client TLS/verify-full preflight passed; pg_stat_ssl proxy-side false/null kept separate. Owner release initiated explicitly, result pending.

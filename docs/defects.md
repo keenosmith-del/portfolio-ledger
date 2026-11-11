@@ -72,3 +72,11 @@ First actual candidate Actions run [43027005906](https://github.com/keenosmith-d
 Actual failed deployment 169e2872 on 22ce9b4 used Railpack at repository root and reported it could not determine how to build the app. Added explicit Dockerfile configs with frontend/backend roots and distinct API/worker commands. Both containers build locally; actual Railway rebuild remains pending.
 
 Railway rejected new legacy TOML opt-in. Replaced with current `.railway/railway.ts`; official SDK 3.16.0 is isolated from app dependencies. Actual plan succeeded with safe web updates and api/worker creation, zero destruction, variables unmanaged. Existing service renamed web; private DNS update succeeded. Hosted apply/rebuild pending.
+
+## D028 — Deployment test inherited CI reviewer flag
+
+First deployment CI: 43 passed, one failed because Settings fixture inherited workflow PUBLIC_REVIEW_ENABLED=true without explicitly setting global read-only. Fixture now supplies both true; exact-environment targeted rerun passed (3/0.05s). Production safeguard unchanged.
+
+## D029 — Neon server TLS statistics describe the proxy hop
+
+Neon pg_stat_ssl false/null was not evidence of the client connection: actual libpq ssl_in_use true with verify-full. Operator inspection now requires actual client TLS and negotiated connection parameter verify-full, retaining backend statistics separately. Plaintext/weak-client-mode regression added. No TLS version fabricated; Psycopg exposes no ssl_attribute_names.

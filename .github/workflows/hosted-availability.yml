@@ -1,0 +1,20 @@
+name: Hosted availability
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  availability:
+    if: vars.PUBLIC_APPLICATION_URL != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Verify HTTPS, database readiness and reviewer availability
+        env:
+          PUBLIC_APPLICATION_URL: ${{ vars.PUBLIC_APPLICATION_URL }}
+        run: python scripts/check_hosted_availability.py

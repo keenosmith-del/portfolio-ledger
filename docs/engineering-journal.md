@@ -191,3 +191,21 @@ Owner authorized storing project-restricted Neon key and scoped Railway CLI conn
 GraphQL rejected builder DOCKERFILE (not in its older Builder enum) before mutations; subsequent request renamed project portfolioledger but serviceUpdate returned Not Authorized. Standalone serviceInstanceUpdate rejected legacy TOML opt-in: current platform requires Infrastructure as Code. Official docs confirm new-service restriction since August 28 and legacy cutoff December 1. Imported existing project with variables unmanaged, installed official railway SDK 3.16.0 only under .railway and replaced unpublished TOML files with .railway/railway.ts. Native Console rename succeeded for existing failed service to web; CLI private endpoint update verified web.railway.internal, dual-stack, ACTIVE, no running private IP yet.
 
 Actual config plan succeeded: safe web source/build/start/readiness/restart updates plus new api and worker; zero destroy, no variables read/written. Provider settings preparation only; no cloud runtime success claimed. Owner asked where to store project-scoped Neon key; supplied exact private TextEdit/file steps.
+
+## 2026-11-11 17:41:55 UTC — Infrastructure applied and scoped Neon credential stored
+
+Committed/pushed a9eeaa7, Actions 43069924214 started. Railway current IaC apply succeeded: web updated, private api (1221c1fe) and worker (ef3a0507) created, no destructive changes. Only web generated HTTPS domain web-production-6a3f45e7.up.railway.app on port 8080. Verified private api/worker DNS endpoints ACTIVE dual-stack with no public domains. Applied non-secret production/read-only/origin/Host/proxy configuration with skip-deploys. First cloud backend Docker builds reached healthcheck; initial API health 400 and worker crashed because build began before production/database variables existed. Not a completed runtime rollout.
+
+Owner saved project-scoped Neon API key via TextEdit to its iCloud folder and asked for help locating it. Used that exact file privately, CLI profile creation succeeded, removed temporary plaintext source and empty /tmp key file, closed credential document. No broad Neon OAuth used. Direct verified-TLS connection retrieval now running with project-scoped profile and output captured privately.
+
+Prepared HTTPS-only hosted browser configuration, cookie/CSRF/Host/portfolio checks and small availability workflow (disabled until public URL repository variable set and workflow reaches default branch). Static rerun initially found formatter-only issue in monitor; corrected, make check passed. No hosted browser or monitoring success inferred.
+
+## 2026-11-11 17:43:57 UTC — Real CI/environment and Neon TLS findings
+
+Actions 43069924214 failed: 43 tests passed, new Settings test failed because workflow PUBLIC_REVIEW_ENABLED=true was inherited while its constructed production settings omitted PUBLIC_DEMO_READ_ONLY. Added both explicit true values in test fixture, preserving fail-closed rule. Exact CI-environment targeted rerun 3 passed / 0.05s / one warning.
+
+Direct Neon preflight found empty public schema (0 tables), owner CREATEROLE/CREATEDB both true. pg_stat_ssl returned false/null despite sslmode=verify-full. Investigated actual client: libpq ssl_in_use true. Psycopg exposes ssl_in_use but not ssl_attribute_names (attempt raised AttributeError, no TLS version fabricated). PostgreSQL libpq docs identify client SSL state as the direct signal; Neon proxy is a separate hop from backend statistics. Corrected operator inspector to require both actual client TLS and live sslmode=verify-full, retaining server stats separately. Added rejection test for plaintext client and weak mode; full checks/tests running before owner release. No certificate verification disabled.
+
+## 2026-11-11 17:44:46 UTC — Corrected local gate accepted; owner release started
+
+make check passed. Full PostgreSQL regression 45 passed / 20.07s / one warning / 83% coverage on dirty deployment branch after a9eeaa7. Actual Neon client TLS active + live verify-full preflight passed. Started explicit one-off app.operations.release with private owner environment after confirming empty target schema. Output captured privately, exception reporting sanitized; owner credentials never set on ordinary services. Outcome pending, no success inferred.

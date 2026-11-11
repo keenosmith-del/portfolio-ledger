@@ -101,3 +101,5 @@ Authorized hosted verification: draft [PR #2](https://github.com/keenosmith-del/
 ## Railway/Neon preparation (local only)
 
 Branch codex/railway-neon-deployment from 22ce9b4, dirty implementation context: make check passed; make test 44 passed in 16.78s with one upstream warning (83% coverage). Deployment web/backend images built; UID 101/10001 and backend CA bundle confirmed. Generated Railway Nginx syntax passed, configured Host served HTTP 200 and unknown Host closed 444. These do not establish cloud TLS, role operations, uptime, migrations or browser success. Existing isolated 10k evidence remains historical accepted evidence; no public database load run.
+
+Deployment follow-up: first CI a9eeaa7 failed (43 passed/1 failed) due new fixture inheriting CI public flag; corrected explicit read-only fixture and actual-client TLS inspection. Full local rerun 45 passed / 20.07s / one warning, static checks passed. Neon client TLS/verify-full preflight passed; migration/runtime/hosted browser gate pending.
