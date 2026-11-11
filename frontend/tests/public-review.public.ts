@@ -117,7 +117,9 @@ test("public reviewer browses evidence and CSV with all direct business writes d
   ).toBeVisible();
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
-    path: "../docs/evidence/ui/after/public-review-audit.png",
+    path:
+      process.env.PLAYWRIGHT_SCREENSHOT_PATH ??
+      "../docs/evidence/ui/after/public-review-audit.png",
     fullPage: true,
   });
 });

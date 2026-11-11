@@ -1,0 +1,26 @@
+{
+  "api": {
+    "tls": true,
+    "client_tls": true,
+    "backend_tls": false,
+    "backend_tls_version": null,
+    "certificate_mode": "verify-full",
+    "direct_connection": true,
+    "migration_heads": [
+      "b003"
+    ],
+    "runtime_role_verified": true
+  },
+  "worker": {
+    "tls": true,
+    "client_tls": true,
+    "backend_tls": false,
+    "backend_tls_version": null,
+    "certificate_mode": "verify-full",
+    "direct_connection": true,
+    "migration_heads": [
+      "b003"
+    ],
+    "runtime_role_verified": true
+  }
+}

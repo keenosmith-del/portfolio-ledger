@@ -15,7 +15,7 @@ A working property-finance operations demonstration: normalize incompatible land
 - Immutable administration-fee previews by portfolio/month/cutoff/pricing version, included/excluded lease lines and downloadable safe CSV.
 - Database-derived operational health, audit timeline, readiness, mobile layout and persisted reload behavior.
 
-Local verification includes PostgreSQL invariant/API tests, real Chrome journey/mobile tests and an isolated **10,000-event import plus replay**. Measured baseline: 100.59s initial, 80.81s replay; 10,000 ledger postings retained after replay. See [actual results and failures](docs/validation.md), not just a feature list. No public deployment is claimed.
+Local verification includes PostgreSQL invariant/API tests, real Chrome journey/mobile tests and an isolated **10,000-event import plus replay**. Measured baseline: 100.59s initial, 80.81s replay; 10,000 ledger postings retained after replay. See [actual results and failures](docs/validation.md), not just a feature list. [Hosted read-only demonstration](https://web-production-6a3f45e7.up.railway.app) is now available; final operational release gates are tracked in [deployment evidence](docs/iterations/007-railway-neon-deployment.md).
 
 ## Release/UI candidate
 
@@ -23,7 +23,7 @@ Current branch refreshes every screen with a neutral white design system and add
 
 Latest local candidate: **41 PostgreSQL tests, seven Chrome cases**, static/type/build/style checks, local restore and full restart pass. All six views plus login have actual reviewed before/after screenshots.
 
-Corrected code candidate passed full [hosted Actions](https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43027530061), including both browser suites and 10k acceptance. [Draft PR #2](https://github.com/keenosmith-del/portfolio-ledger/pull/2) is open; latest checks and visual review remain required before merge.
+Corrected code candidate passed full [hosted Actions](https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43027530061), including both browser suites and 10k acceptance. [PR #2](https://github.com/keenosmith-del/portfolio-ledger/pull/2) merged as 22ce9b4. [Deployment PR #3](https://github.com/keenosmith-del/portfolio-ledger/pull/3) prepares Railway web/private API/worker and Neon; hosted reviewer/security and Neon restore checks passed; final operational release gates remain tracked.
 
 Uploads now select enabled configured source identities. Additive migration b003 retains historical keys disabled until reviewed; explicit synthetic seed enables the two known fictional demo sources. A new source key cannot create another ledger namespace through the API.
 

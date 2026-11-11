@@ -1,0 +1,11 @@
+{
+  "verified_at": "2026-11-11T18:04:33.748854+00:00",
+  "status": "partially_completed",
+  "attempts": 2,
+  "duplicates": 7,
+  "accepted": 0,
+  "lease_expiry_injected": true,
+  "actual_railway_worker_restart": false,
+  "ledger_unchanged": true,
+  "restart_attempt_result": "latest deployment not restartable"
+}

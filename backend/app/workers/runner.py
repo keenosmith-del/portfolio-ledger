@@ -1,6 +1,7 @@
 import json
 import logging
 import signal
+import sys
 import threading
 import time
 
@@ -27,13 +28,24 @@ def tick() -> bool:
             json.dumps(
                 {
                     "event": "import_processed",
+                    "message": "Import processed",
+                    "level": "info",
                     "job_id": job_id,
                     "duration_ms": round((time.monotonic() - started) * 1000),
                 }
             )
         )
     except Exception:
-        logger.error(json.dumps({"event": "import_attempt_failed", "job_id": job_id}))
+        logger.error(
+            json.dumps(
+                {
+                    "event": "import_attempt_failed",
+                    "message": "Import attempt failed",
+                    "level": "error",
+                    "job_id": job_id,
+                }
+            )
+        )
         with SessionLocal.begin() as db:
             job = db.scalar(select(ImportJob).where(ImportJob.id == job_id).with_for_update())
             if job:
@@ -46,7 +58,7 @@ def tick() -> bool:
 
 
 def main() -> None:
-    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stdout)
     signal.signal(signal.SIGTERM, lambda *_: stop.set())
     signal.signal(signal.SIGINT, lambda *_: stop.set())
     while not stop.is_set():

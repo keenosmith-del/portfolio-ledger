@@ -1,0 +1,15 @@
+{
+  "verified_at": "2026-11-11T18:12:28.262038+00:00",
+  "exact_business_ids_unchanged": true,
+  "ledger_total_zar": "19500.00",
+  "counts": {
+    "ledger_entries": 9,
+    "leases": 3,
+    "billing_previews": 2,
+    "billing_preview_lines": 3,
+    "audit_events": 13,
+    "exceptions": 7,
+    "import_jobs": 4
+  },
+  "boundary": "after synthetic lease recovery through CI-gated service rollout; explicit full restart still pending"
+}

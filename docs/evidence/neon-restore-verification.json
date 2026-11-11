@@ -1,0 +1,63 @@
+{
+  "verified_at": "2026-11-11T17:57:35.893735+00:00",
+  "source_unchanged": true,
+  "exact_business_hashes_restored": true,
+  "restore_database": "portfolioledger_restore_202611111749116dacb6",
+  "restore_database_retained": true,
+  "private_dump_removed": true,
+  "tables": {
+    "portfolios": {
+      "count": 2,
+      "sha256": "b60e44070882311f1c509551341db479ced6affe683582a5a80fcbc4e1306181"
+    },
+    "integration_sources": {
+      "count": 2,
+      "sha256": "1180f1a3471f5ba1771a9915f6a0fdebf6479ae4368e230e2be32079cea4f41d"
+    },
+    "leases": {
+      "count": 3,
+      "sha256": "da87fc0bf21fec73f9ee062e9913eee1432a5e0695ec728529f506a36a196bdd"
+    },
+    "lease_versions": {
+      "count": 3,
+      "sha256": "3cb96af1fec21990de221e2afe6b69ce8de959447c24ca5733fc81566fa65b13"
+    },
+    "ledger_entries": {
+      "count": 9,
+      "sha256": "b1b76e806c8102a55470cca6ee72c26274ff3e86bfeb8dac3129121d81a5936d"
+    },
+    "raw_records": {
+      "count": 23,
+      "sha256": "75affcc899b68033c2025ff17cd909ee47b6392041bcbb197702d0c480ed2793"
+    },
+    "import_jobs": {
+      "count": 3,
+      "sha256": "82e5a7ca68196f2b44a99d51c36313aff219ca313d6c899bf60e469163d6f7ad"
+    },
+    "pricing_versions": {
+      "count": 2,
+      "sha256": "deaccdbaa29da5a48dcb28cb59803177a5d567bc25584ed2a04c1a745418067e"
+    },
+    "reconciliations": {
+      "count": 2,
+      "sha256": "b5d0324b3b98fe5f1b4dbf15071b1388cc25d22f097912bbd4eb8f0e2344a792"
+    },
+    "exceptions": {
+      "count": 7,
+      "sha256": "f2bb386b687d121be9d4df52c6ba5aff073622ffd9b3e21fd4cf464416d3c1f9"
+    },
+    "billing_previews": {
+      "count": 2,
+      "sha256": "061fff53e8358c652ea84b9522e655ce615d979cfb4bee3f6d036a0bf952dd08"
+    },
+    "billing_preview_lines": {
+      "count": 3,
+      "sha256": "7b888124e094b4d95c966e6a8fd43b0380fc0a8671f203d45af3d839b10761be"
+    },
+    "audit_events": {
+      "count": 11,
+      "sha256": "689dc899371d0950d707f471607d96b0dae851cfb67fb97211837bf56fb79493"
+    },
+    "ledger_total": "19500.00"
+  }
+}

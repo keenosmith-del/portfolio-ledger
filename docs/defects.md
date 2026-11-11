@@ -66,3 +66,37 @@ Actual frontend `/ready` returned 400 while direct API was healthy. Nginx forwar
 ## D026 — Hosted bootstrap pip fails unsuppressed audit
 
 First actual candidate Actions run [43027005906](https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43027005906) failed at pip-audit: pip 25.0.1 bundled by runner venv, 12 reported findings in that single package (some advisory aliases duplicated). CI/local bootstrap and runtime image now explicitly upgrade pip>=26.2 before installation. Scanner remains enabled with no advisory suppressions. Actual hosted rerun outcomes recorded in journal/validation.
+
+## D027 — Railway root autodetection cannot build monorepo
+
+Actual failed deployment 169e2872 on 22ce9b4 used Railpack at repository root and reported it could not determine how to build the app. Added explicit Dockerfile configs with frontend/backend roots and distinct API/worker commands. Both containers build locally; actual Railway rebuild remains pending.
+
+Railway rejected new legacy TOML opt-in. Replaced with current `.railway/railway.ts`; official SDK 3.16.0 is isolated from app dependencies. Actual plan succeeded with safe web updates and api/worker creation, zero destruction, variables unmanaged. Existing service renamed web; private DNS update succeeded. Hosted apply/rebuild pending.
+
+## D028 — Deployment test inherited CI reviewer flag
+
+First deployment CI: 43 passed, one failed because Settings fixture inherited workflow PUBLIC_REVIEW_ENABLED=true without explicitly setting global read-only. Fixture now supplies both true; exact-environment targeted rerun passed (3/0.05s). Production safeguard unchanged.
+
+## D029 — Neon server TLS statistics describe the proxy hop
+
+Neon pg_stat_ssl false/null was not evidence of the client connection: actual libpq ssl_in_use true with verify-full. Operator inspection now requires actual client TLS and negotiated connection parameter verify-full, retaining backend statistics separately. Plaintext/weak-client-mode regression added. No TLS version fabricated; Psycopg exposes no ssl_attribute_names.
+
+## D030 — Railway private DNS startup dependency cycle
+
+Actual API startup could not resolve web.railway.internal; web deployment /ready could not resolve api.railway.internal. Neither dependent service became healthy. Web now checks its own static homepage at deployment startup; real public /ready still checks private API/database. API trusts only exact resolved web addresses. Safe infrastructure apply accepted; hosted result pending.
+
+## D031 — Fresh restore database already contains public schema
+
+Hosted pg_restore --exit-on-error stopped at schema public already exists; isolated DB remained at zero public tables, source untouched. Read-only dump preflight passed. Restore TOC now omits exactly the public schema CREATE entry, avoiding clean/drop and preserving all data/constraints/triggers. Retry uses the same verified empty isolated DB; outcome pending.
+
+## D032 — IPv6 host binding was not dual-family
+
+API listened on :: but Railway health did not reach it. Actual installed asyncio/Uvicorn path created V6ONLY=1; loopback IPv4 refused. Explicit V6ONLY=0 listener now accepts both families, with exact mapped IPv4 proxy addresses also trusted. New real socket regression exercises IPv4/IPv6. No public API domain or broad proxy CIDR added. Hosted outcome pending.
+
+## D033 — Hosted negative Host test misread certificate denial
+
+Playwright overrides SNI with Host and rejected the deliberately untrusted hostname certificate. Test initially expected an HTTP response. It now accepts that precise TLS rejection or non-200 denial without disabling verification. Cleanup always revokes QA session and expects actual 204. Final hosted security case passed 6.5s; private failure-session token revoked.
+
+## D034 — Railway classified successful structured events as errors
+
+Actual status-200 requests and successful worker processing were stderr JSON with no severity/message, normalized to error. App/worker now emit stdout JSON with explicit level/message; real errors retain error severity. No body/token data added. Full 46-test regression and static checks pass; hosted log classification verification pending rollout.

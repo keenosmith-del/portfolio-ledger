@@ -1,0 +1,12 @@
+{
+  "verified_at": "2026-11-11T18:21:19.293444+00:00",
+  "railway_owner_preferences_observed": true,
+  "deployment_failed_delivery": "Email & In-App",
+  "deployment_crashed_oom_delivery": "Email & In-App",
+  "high_severity_fallback": "Email & In-App",
+  "actual_in_app_failure_notifications_observed": true,
+  "email_inbox_delivery_not_inspected": true,
+  "github_availability_url_variable_set": true,
+  "github_scheduled_probe_active": false,
+  "scheduled_probe_blocker": "workflow not yet merged into default branch"
+}

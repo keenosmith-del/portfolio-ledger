@@ -1,0 +1,40 @@
+{
+  "verified_at": "2026-11-11T18:21:19.293444+00:00",
+  "url": "https://web-production-6a3f45e7.up.railway.app",
+  "deployed_revision": "6a3c6cb",
+  "public_journey": {
+    "passed": true,
+    "case_seconds": 21.7,
+    "checks": [
+      "read-only public login",
+      "imports",
+      "ledger source evidence",
+      "reconciliation inspection",
+      "billing CSV",
+      "audit",
+      "five business mutation denials"
+    ]
+  },
+  "security_followup": {
+    "passed": true,
+    "case_seconds": 6.5,
+    "suite_seconds": 7.8,
+    "checks": [
+      "HTTPS certificate validation",
+      "HSTS",
+      "HttpOnly Secure SameSite Strict cookie",
+      "two synthetic portfolios",
+      "missing CSRF denied",
+      "wrong origin denied",
+      "invalid Host denied by verified TLS",
+      "session revoked on completion"
+    ]
+  },
+  "http_redirect": 301,
+  "ready_status": 200,
+  "schema": "b003",
+  "failed_attempts": [
+    "negative Host override caused expected TLS certificate rejection; test initially treated it as failure",
+    "cleanup expectation corrected from 200 to actual 204; session was revoked"
+  ]
+}

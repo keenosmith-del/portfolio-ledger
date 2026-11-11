@@ -2,6 +2,7 @@ import json
 import logging
 import re
 import secrets
+import sys
 import time
 from datetime import timedelta
 from typing import Any
@@ -82,7 +83,7 @@ app.add_middleware(
 app.add_middleware(BodyLimitMiddleware, maximum=MAX_BYTES + 65536)
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.allowed_hosts)
 logger = logging.getLogger("portfolioledger.api")
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stdout)
 
 
 def obj(value: Base, exclude: set[str] | None = None) -> dict[str, Any]:
@@ -150,6 +151,8 @@ async def request_context(request: Request, call_next: Any) -> Response:
         json.dumps(
             {
                 "event": "http_request",
+                "message": "HTTP request",
+                "level": "error" if response.status_code >= 500 else "info",
                 "request_id": corr(request),
                 "method": request.method,
                 "path": request.url.path,
@@ -190,6 +193,8 @@ async def database_error(request: Request, exc: SQLAlchemyError) -> JSONResponse
         json.dumps(
             {
                 "event": "database_error",
+                "message": "Database operation failed",
+                "level": "error",
                 "request_id": corr(request),
                 "type": type(exc).__name__,
             }
