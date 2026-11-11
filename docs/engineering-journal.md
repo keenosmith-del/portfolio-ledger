@@ -23,3 +23,7 @@ Verification status: static typing passes. Migration, database behavior, browser
 ### Foundation verification and first saved increment
 
 Generated initial Alembic revision against the empty local PostgreSQL database; added a separate immutability-trigger revision. Applied both with exit 0. Seven financial boundary/CSV-safety tests passed in 0.04s. Ruff and strict mypy passed. Saving this verified infrastructure increment; import, HTTP, concurrency and full UI verification remain outstanding. No failed-to-passing application test exists yet, so none is claimed.
+
+## 2026-11-11 — Import/API integration, first red checkpoint
+
+Implemented API and synthetic seed/fixture generator. Strict mypy initially found six generic model errors; added a typed shared portfolio model base and reran successfully (15 files). The first actual PostgreSQL integration suite returned **2 failed, 15 passed in 14.40s**. D005: immutable billing snapshot header was flushed before its final total was calculated. Database guard rejected the later update. HTTP teardown permitted an apparent success before rollback, discovered by subsequent CSV export 404. Saving failing regression tests and the observed result before correction. This is an intentionally incomplete checkpoint, not an accepted phase.

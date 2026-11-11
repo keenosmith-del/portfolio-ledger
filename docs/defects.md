@@ -7,3 +7,6 @@
 | D003 | Compose db startup blocked by required app password interpolation | Private generated `.env`, mode 0600 | `docker compose up -d db` succeeded |
 
 Application defects will be appended with the failing test/command and passing rerun. Infrastructure obstacles are distinguished from application test failures; none of these are represented as failed invariant tests.
+
+| D004 | Strict typing found six generic pagination/scoping attribute errors after Ruff rewrote getattr | Introduced typed PortfolioEntity base | mypy passed 15 files |
+| D005 | First PostgreSQL suite: immutable billing header was inserted at zero then updated; concurrent preview failed and HTTP export returned 404 | Correction pending: compute before insertion, enforce transaction completion before HTTP success | Red run: 2 failed / 15 passed, 14.40s |

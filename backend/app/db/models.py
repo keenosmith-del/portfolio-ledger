@@ -39,6 +39,11 @@ class Entity(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
 
+class PortfolioEntity(Entity):
+    __abstract__ = True
+    portfolio_id: Mapped[str] = mapped_column(ForeignKey("portfolios.id"))
+
+
 class User(Entity):
     __tablename__ = "users"
     email: Mapped[str] = mapped_column(String(200), unique=True)
@@ -74,7 +79,7 @@ class RateWindow(Base):
     count: Mapped[int] = mapped_column(Integer, default=0)
 
 
-class Pricing(Entity):
+class Pricing(PortfolioEntity):
     __tablename__ = "pricing_versions"
     portfolio_id: Mapped[str] = mapped_column(ForeignKey("portfolios.id"), index=True)
     version: Mapped[int] = mapped_column(Integer)
@@ -88,7 +93,7 @@ class Pricing(Entity):
     )
 
 
-class ImportJob(Entity):
+class ImportJob(PortfolioEntity):
     __tablename__ = "import_jobs"
     portfolio_id: Mapped[str] = mapped_column(ForeignKey("portfolios.id"))
     adapter: Mapped[str] = mapped_column(String(30))
@@ -117,7 +122,7 @@ class ImportJob(Entity):
     )
 
 
-class RawRecord(Entity):
+class RawRecord(PortfolioEntity):
     __tablename__ = "raw_records"
     portfolio_id: Mapped[str] = mapped_column(ForeignKey("portfolios.id"))
     job_id: Mapped[str] = mapped_column(String(36))
@@ -137,7 +142,7 @@ class RawRecord(Entity):
     )
 
 
-class Unit(Entity):
+class Unit(PortfolioEntity):
     __tablename__ = "units"
     portfolio_id: Mapped[str] = mapped_column(ForeignKey("portfolios.id"))
     external_id: Mapped[str] = mapped_column(String(120))
@@ -147,7 +152,7 @@ class Unit(Entity):
     )
 
 
-class Tenant(Entity):
+class Tenant(PortfolioEntity):
     __tablename__ = "tenants"
     portfolio_id: Mapped[str] = mapped_column(ForeignKey("portfolios.id"))
     external_id: Mapped[str] = mapped_column(String(120))
@@ -157,7 +162,7 @@ class Tenant(Entity):
     )
 
 
-class Lease(Entity):
+class Lease(PortfolioEntity):
     __tablename__ = "leases"
     portfolio_id: Mapped[str] = mapped_column(ForeignKey("portfolios.id"))
     source_key: Mapped[str] = mapped_column(String(100))
@@ -168,7 +173,7 @@ class Lease(Entity):
     )
 
 
-class LeaseVersion(Entity):
+class LeaseVersion(PortfolioEntity):
     __tablename__ = "lease_versions"
     portfolio_id: Mapped[str] = mapped_column(ForeignKey("portfolios.id"))
     lease_id: Mapped[str] = mapped_column(String(36))
@@ -195,7 +200,7 @@ class LeaseVersion(Entity):
     )
 
 
-class LedgerEntry(Entity):
+class LedgerEntry(PortfolioEntity):
     __tablename__ = "ledger_entries"
     portfolio_id: Mapped[str] = mapped_column(ForeignKey("portfolios.id"))
     lease_id: Mapped[str] = mapped_column(String(36))
@@ -228,7 +233,7 @@ class LedgerEntry(Entity):
     )
 
 
-class Reconciliation(Entity):
+class Reconciliation(PortfolioEntity):
     __tablename__ = "reconciliations"
     portfolio_id: Mapped[str] = mapped_column(ForeignKey("portfolios.id"))
     month: Mapped[str] = mapped_column(String(7))
@@ -241,7 +246,7 @@ class Reconciliation(Entity):
     )
 
 
-class ExceptionRecord(Entity):
+class ExceptionRecord(PortfolioEntity):
     __tablename__ = "exceptions"
     portfolio_id: Mapped[str] = mapped_column(ForeignKey("portfolios.id"))
     run_id: Mapped[str] = mapped_column(String(36))
@@ -261,7 +266,7 @@ class ExceptionRecord(Entity):
     )
 
 
-class Preview(Entity):
+class Preview(PortfolioEntity):
     __tablename__ = "billing_previews"
     portfolio_id: Mapped[str] = mapped_column(ForeignKey("portfolios.id"))
     month: Mapped[str] = mapped_column(String(7))
@@ -277,7 +282,7 @@ class Preview(Entity):
     )
 
 
-class PreviewLine(Entity):
+class PreviewLine(PortfolioEntity):
     __tablename__ = "billing_preview_lines"
     portfolio_id: Mapped[str] = mapped_column(ForeignKey("portfolios.id"))
     preview_id: Mapped[str] = mapped_column(String(36))
@@ -296,7 +301,7 @@ class PreviewLine(Entity):
     )
 
 
-class AuditEvent(Entity):
+class AuditEvent(PortfolioEntity):
     __tablename__ = "audit_events"
     portfolio_id: Mapped[str] = mapped_column(ForeignKey("portfolios.id"), index=True)
     actor_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
