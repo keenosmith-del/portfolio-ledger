@@ -92,3 +92,11 @@ Hosted pg_restore --exit-on-error stopped at schema public already exists; isola
 ## D032 — IPv6 host binding was not dual-family
 
 API listened on :: but Railway health did not reach it. Actual installed asyncio/Uvicorn path created V6ONLY=1; loopback IPv4 refused. Explicit V6ONLY=0 listener now accepts both families, with exact mapped IPv4 proxy addresses also trusted. New real socket regression exercises IPv4/IPv6. No public API domain or broad proxy CIDR added. Hosted outcome pending.
+
+## D033 — Hosted negative Host test misread certificate denial
+
+Playwright overrides SNI with Host and rejected the deliberately untrusted hostname certificate. Test initially expected an HTTP response. It now accepts that precise TLS rejection or non-200 denial without disabling verification. Cleanup always revokes QA session and expects actual 204. Final hosted security case passed 6.5s; private failure-session token revoked.
+
+## D034 — Railway classified successful structured events as errors
+
+Actual status-200 requests and successful worker processing were stderr JSON with no severity/message, normalized to error. App/worker now emit stdout JSON with explicit level/message; real errors retain error severity. No body/token data added. Full 46-test regression and static checks pass; hosted log classification verification pending rollout.

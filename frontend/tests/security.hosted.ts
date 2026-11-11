@@ -46,14 +46,26 @@ test("hosted reviewer keeps HTTPS and protected session boundaries", async ({
     },
   });
   expect(wrongOrigin.status()).toBe(403);
-  expect(
-    (
-      await page.request.get("/ready", {
-        headers: { Host: "untrusted.example.invalid" },
-      })
-    ).status(),
-  ).not.toBe(200);
-  await page.request.post("/api/auth/logout", {
-    headers: { "X-CSRF-Token": identity.csrf },
-  });
+  try {
+    const invalidHost = await page.request.get("/ready", {
+      headers: { Host: "untrusted.example.invalid" },
+    });
+    expect(invalidHost.status()).not.toBe(200);
+  } catch (error) {
+    // Playwright derives SNI from an overridden Host; certificate rejection is
+    // also an accepted denial. Keep HTTPS verification enabled.
+    expect(String(error)).toMatch(/Hostname\/IP does not match certificate/);
+  }
+});
+
+// Revoke QA sessions even when a negative security assertion fails.
+test.afterEach(async ({ page }) => {
+  const response = await page.request.get("/api/auth/me");
+  if (response.ok()) {
+    const identity = await response.json();
+    const logout = await page.request.post("/api/auth/logout", {
+      headers: { "X-CSRF-Token": identity.csrf },
+    });
+    expect(logout.status()).toBe(204);
+  }
 });

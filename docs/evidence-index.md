@@ -46,3 +46,6 @@ Hosted code candidate 65fdea6 passed full [Actions](https://github.com/keenosmit
 
 - [Neon runtime verification](evidence/neon-runtime-verification.json): actual direct verified client TLS, b003, least-privilege boundaries for both roles.
 - [Hosted Neon restore](evidence/neon-restore-verification.json): exact business hashes/IDs/totals and unchanged source, isolated database retained.
+
+- [Actual hosted browser checks](evidence/hosted-browser-verification.json), [reviewer screenshot](evidence/ui/hosted/public-review-audit.png).
+- [Railway persistence](evidence/railway-persistence-verification.json), [injected worker lease recovery](evidence/railway-worker-recovery.json), [notification preferences](evidence/railway-monitoring-verification.json). Explicit full restart and active availability schedule tracked separately until verified.

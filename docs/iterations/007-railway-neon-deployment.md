@@ -19,3 +19,7 @@ Current IaC apply succeeded for web/api/worker, with private api/worker DNS and 
 First CI 43069924214 failed in new test fixture, 43 passed/1 failed. Corrected fixture supplies public read-only flags explicitly. Full local follow-up 45 passed/20.07s/one warning, make check passed. Neon actual client TLS/verify-full preflight passed; pg_stat_ssl proxy-side false/null kept separate. Owner release initiated explicitly, result pending.
 
 Owner release completed to b003; both actual runtime connections passed all ownership/privilege/membership and verified-client-TLS gates. Isolated hosted backup/restore passed exact hashes/IDs/total with source unchanged; first public-schema conflict and TOC correction retained in journal. Web homepage HTTPS 200; API readiness still pending. Corrected CI 43071397070 on db1b599 passed full financial/10k and private/public browser gates.
+
+## Hosted application accepted; final operational gates pending
+
+Public URL: https://web-production-6a3f45e7.up.railway.app . Public /ready 200/b003, HTTPS/HSTS/secure cookie flags verified. Actual public browser journey passed 21.7s, security follow-up 6.5s. Five business writes denied, persisted synthetic evidence/CSV/audit inspected. Exact rollout persistence: 9 postings / ZAR 19,500.00, unchanged business IDs. Owner failure/crash Email & In-App notifications verified enabled and actual in-app failures observed. Final logging classification correction passes static checks and 46 local tests/22.94s; rollout, explicit full restart and default-branch scheduled monitoring pending.
