@@ -37,7 +37,13 @@ def test_proxy_dns_resolves_only_exact_addresses(monkeypatch: Any) -> None:
     monkeypatch.setattr(serve.settings, "api_bind_host", "0.0.0.0")
     assert serve.proxy_addresses() == ["10.0.0.7", "fd12:3456::2"]
     monkeypatch.setattr(serve.settings, "api_bind_host", "::")
-    assert serve.proxy_addresses() == ["10.0.0.7", "::ffff:a00:7", "fd12:3456::2"]
+    from ipaddress import ip_address
+
+    assert {ip_address(value) for value in serve.proxy_addresses()} == {
+        ip_address("10.0.0.7"),
+        ip_address("::ffff:10.0.0.7"),
+        ip_address("fd12:3456::2"),
+    }
     monkeypatch.setattr(serve.socket, "getaddrinfo", lambda *a, **k: [])
     monkeypatch.setattr(serve.settings, "app_env", "production")
     with pytest.raises(ValueError):

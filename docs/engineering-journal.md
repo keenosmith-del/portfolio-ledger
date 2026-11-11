@@ -231,3 +231,15 @@ Web static startup health succeeded: actual HTTPS homepage HTTP 200. /ready stil
 ## 2026-11-11 18:01:54 UTC — True dual-family listener correction
 
 After web succeeded and private DNS logs showed A/AAAA, API launched Uvicorn on [::]:8000 but did not receive Railway health requests. Installed server uses asyncio create_server(host=::); actual loopback reproducer reported IPV6_V6ONLY=1 and IPv4 ConnectionRefusedError. Replaced implicit listener with explicit IPv6 socket IPV6_V6ONLY=0 passed to Uvicorn Server, preserving precise proxy/origin/Host validation. Added real IPv4 + IPv6 connection regression and exact IPv4-mapped peer address variants for trusted proxy IPs (never a CIDR/wildcard). Verification running. Previous accepted CI remains db1b599; 7a87031 published restore/startup/HSTS increment before this finding.
+
+## 2026-11-11 18:03:21 UTC — Listener regression accepted; mapped-IP assertion corrected
+
+Full local PostgreSQL run passed 46 tests / 22.17s / one warning / 82% coverage after dual-family socket change. Added mapped IPv4 trust variants afterward and static checks passed, but concurrent publication 3821dda completed before targeted test returned one failure: Python 3.14 renders mapped addresses dotted whereas expected literal used hexadecimal. Runtime trust parses addresses correctly; changed assertion to compare IP address objects across Python versions. Exact CI-environment targeted rerun now 5 passed / 0.05s / one warning. This failed test/publication order is retained; no false passing claim for that intermediate assertion.
+
+Hosted restore completed before staging the worker recovery drill. New synthetic duplicate replay is staged with a deliberately injected processing lease; actual Railway worker restart/recovery and unchanged ledger hash will be verified. This injection is operator-controlled test evidence, not an invented real outage. No public mutation route enabled.
+
+## 2026-11-11 18:05:12 UTC — Mapped-address CI failure and precise recovery evidence
+
+CI 43073887308 for 3821dda failed only mapped-address string assertion (45 passed/1 failed, 21.21s). Contrary to initial Python-version inference, CI Python 3.12 also renders mapped addresses dotted. The corrected address-object assertion passed locally (5/0.05s); make check passed. Publishing that correction now, without changing runtime behavior.
+
+Worker lease recovery itself passed on the existing running service: injected processing lease expired, attempt two partially_completed with seven duplicates/zero accepted and unchanged ledger hash. CLI restart attempt returned deployment not restartable because latest deployment was queued, so this does NOT prove a completed worker restart. Corrected uncommitted evidence restart flag to false immediately; real restart remains a separate outstanding gate. No new SSH key/access created.
