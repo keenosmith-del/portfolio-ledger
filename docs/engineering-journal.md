@@ -121,3 +121,33 @@ Public Chrome case first timed out because Escape fired before asynchronous repo
 ## 2026-11-11 12:54:28 UTC — Public reviewer accepted
 
 Third public-test rerun reached Audit and found a test-only heading typo (omitted ampersand in existing Execution & audit timeline). Corrected locator without changing product copy/assertions. Final public Chrome case: 1 passed in 4.2s (2.5s case). Password-free reviewer inspected reports, ledger source evidence, exceptions, preview CSV and audit; direct upload/replay/reconciliation/review/preview calls all 403. Business-ID/ledger comparison unchanged; sanitized public-review.json and credential-free public-review-audit screenshot saved. Production Nginx configuration tested inside actual non-root image: syntax successful (entrypoint read-only-config notice expected). Final candidate credential scan passed. Saving implementation increment before restart/final evidence increment.
+
+## 2026-11-11 12:58:27 UTC — Restart accepted; final ownership regression
+
+Implementation increment committed as 7ed81c6. Complete Compose down/up (no volume removal) passed exact-ID/ledger comparison: 9 postings, 3 leases, 8 previews/15 lines, 48 audits, 119 exceptions, 12 jobs; ZAR 19,500.00. Sanitized persistence-release.json saved.
+
+Final privilege review identified schema ownership as a second DDL bypass path despite non-ownership of individual tables. Added reproducer: 1 failed in 0.50s (expected owner-rejection exception did not occur). Role setup and production readiness now check database/schema ownership and membership as well as table ownership/role flags. Existing separate-role financial journey now also asserts readiness becomes 503 if runtime role is temporarily assigned schema ownership, then restores ownership in test cleanup. Configuration repr/errors now redact secret fields and production rejects socket/unnamed DB identities. Full suite/static rerun pending. No finance/schema/worker logic changed in this correction.
+
+## 2026-11-11 12:59:20 UTC — Ownership correction green
+
+Full PostgreSQL suite: 41 passed / 35.88s / 85% / one upstream warning. Schema-owner reproducer now passes, ordinary separate-runtime financial journey stays green, production readiness rejects schema ownership. All static/type/build/style checks pass. No finance logic, source identity, worker processing or Alembic schema changed after the accepted 10k run; no benchmark rerun asserted. Final images rebuilding before browser/capture verification.
+
+## 2026-11-11 13:02:58 UTC — Final visual/accessibility correction
+
+Public case rerun against final rebuilt backend: 1 passed in 5.5s; stricter screenshot waits now require the real audit rows loaded and scroll to page top. Manual review had caught an earlier public capture before audit data finished loading; replacement is required, not claimed accepted.
+
+Private final browser rerun: 5 passed / 1 failed, 19.0s. Axe caught Integrations navigation at intermediate transition colors (contrast 1.12/2.23 while text/background swapped). Removed only navigation color transitions so selected background/text switch together; unchanged axe assertions and full journey rerunning. This is a genuine transient style defect, not a reason to disable contrast checking or introduce test sleeps.
+
+## 2026-11-11 13:07:13 UTC — Final local acceptance and reviewed captures
+
+D023 corrected: full private Chrome suite 6 passed in 19.2s; unchanged axe contrast checks pass login and all six operational views, responsive 36 combinations and all finance assertions retained. Final public Chrome 1 passed in 4.2s; exact business-ID/ledger comparison unchanged (9 postings, 3 leases, 10 previews/19 lines, 58 audits, 173 exceptions, 14 jobs, ZAR 19,500.00). Private runs legitimately added review/import/preview history between public/restart measurement boundaries; no data reset. Returned stack to private mode.
+
+Final screenshot helper initially captured images but failed logout because standalone browser request context lacked a base URL. Added explicit loopback base URL and finally-close; complete rerun exited 0 (Captured after synthetic UI screenshots), including session revocation. Refreshed all six screens plus login, ledger, source modal, tablet/mobile. Actually viewed final overview/mobile/tablet/login/integrations/leases/modal/reconciliation/billing and public Audit; all neutral/rounded/legible, no clipped document or credentials. Public Audit now contains actual loaded rows and sidebar starts at top; screenshots accepted.
+
+Final static/type/build/style and credential/artifact checks passed at this checkpoint (latest final command completion recorded before commit). No new backend business/schema/worker change after accepted 10k run. Local backup/restore and full named-volume restart have genuine evidence. Hosted candidate CI, HTTPS deployment, hosted TLS DB/backup/alerting remain unverified; public release NO-GO. Implementation and local acceptance complete; branch publication remains conditional on owner authorization per supplied phase 5.
+
+## 2026-11-11 13:11:01 UTC — Browser-facing readiness corrected and final candidate saved
+
+Final endpoint audit found real `/ready` through Nginx returned 400 despite direct API health: that location omitted browser Host, so strict TrustedHost rejected internal upstream hostname. Kept host enforcement and forwarded original Host/protocol in both local/production readiness locations. Added actual readiness-dialog assertion to original journey and same-origin readiness assertion to public test. Production Nginx syntax passes in actual non-root image; curl via frontend now 200 with b003. Private full suite **6 passed / 33.1s**, public **1 passed / 9.9s**, including all existing financial/axe assertions. Public exact business-ID/ledger comparison passed again; private reviewer actions between checkpoints account for 11 previews/21 lines, 63 audits, 203 exceptions and 15 jobs (ledger still 9 / ZAR 19,500.00).
+
+Returned private mode. Immediate curl during API recreation briefly returned 502 before health startup; subsequent explicit readiness check returned ready/b003 and auth options public_review_enabled=false. No steady-state failure or uptime claim inferred. Final static/type/build/style and credential/artifact scans passed; git diff whitespace clean. All current implementation/evidence files are being saved as a second meaningful increment. No push, new PR, candidate hosted CI or cloud deployment performed; those remain conditional release gates.

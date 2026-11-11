@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "counts": {
+    "ledger_entries": 9,
+    "leases": 3,
+    "billing_previews": 8,
+    "billing_preview_lines": 15,
+    "audit_events": 48,
+    "exceptions": 119,
+    "import_jobs": 12
+  },
+  "ledger_total_zar": "19500.00",
+  "timestamp_recorded_utc": "2026-11-11T12:58:27.445717+00:00",
+  "scope": "full docker compose down/up; named volume retained; exact business IDs and ledger total compared",
+  "implementation_commit": "7ed81c6"
+}

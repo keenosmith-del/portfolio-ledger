@@ -21,6 +21,8 @@ Local verification includes PostgreSQL invariant/API tests, real Chrome journey/
 
 Current branch refreshes every screen with a neutral white design system and adds a canonical source registry, password-free read-only reviewer, fail-closed production configuration, separate runtime grants and a real local backup/restore drill. See [current validation](docs/validation.md), [before/after UI evidence](docs/iterations/005-design-system-and-navigation.md) and [release gates](docs/deployment.md). The original local evidence above remains historical; public deployment is **NO-GO** until hosted gates are verified.
 
+Latest local candidate: **41 PostgreSQL tests, seven Chrome cases**, static/type/build/style checks, local restore and full restart pass. All six views plus login have actual reviewed before/after screenshots.
+
 Uploads now select enabled configured source identities. Additive migration b003 retains historical keys disabled until reviewed; explicit synthetic seed enables the two known fictional demo sources. A new source key cannot create another ledger namespace through the API.
 
 ## Quick start — Docker

@@ -9,11 +9,11 @@ Verified capability is bounded synthetic finance operations, not a commercial pr
 5. **Scope filters.** Server-side ledger/audit/job/exception/preview paging exists; lease latest-version selection and overview aggregation currently materialize bounded source data. Large-scale reporting needs SQL window selection and database aggregates.
 6. **Local safe demo.** Three roles, explicit grants, CSRF, quotas and no live transactions. Per-reviewer public isolation/reset and real cloud deployment remain unimplemented. No AWS/S3, telemetry collector or scheduled imports are represented as configured.
 7. **UUID storage.** IDs are random UUID strings in VARCHAR(36), easy for API portability. Native PostgreSQL UUID would reduce index size but requires an explicit migration if adopted.
-8. **Source namespace configuration.** One adapter per portfolio; source key entered at import. Production should make source configuration an admin-managed durable entity with bounded stable keys.
-9. **Append-only evidence.** DB triggers enforce application-level immutability; a superuser/owner is outside that protection. Migration and runtime roles must be separated for hosted use.
+8. **Source namespace configuration.** One adapter per portfolio; uploads select an enabled operator-managed source registry entry. Adding an independently authorized upstream account is a private release operation, never an upload side effect.
+9. **Append-only evidence.** DB triggers enforce application-level immutability; a superuser/owner is outside that protection. Separate API/worker grants and ownership checks are implemented and tested; hosted operators must install them and keep migration-owner credentials private.
 10. **CI is code, not a claimed green run.** Local checks/build/browser evidence exist; hosted Actions success only after push and actual run inspection. Upstream Starlette TestClient currently emits an httpx deprecation warning.
 
-First follow-up: tighter generated API contracts; profile/stage import data, comprehensive malicious parser fuzzing, isolated reviewer lifecycle, then an approved TLS deployment and backup restore drill. No optional claims/AI features are added before these core operational concerns.
+First follow-up: tighter generated API contracts; profile/stage import data, comprehensive malicious parser fuzzing, isolated reviewer lifecycle, then an approved TLS deployment and hosted backup restore drill (local restore is verified). No optional claims/AI features are added before these core operational concerns.
 
 ## Iteration 005/006 updates
 

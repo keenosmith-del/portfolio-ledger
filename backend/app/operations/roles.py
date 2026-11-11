@@ -47,6 +47,12 @@ def grant_runtime(
         ).fetchone()
         if membership and membership[0] != 0:
             raise ValueError("runtime roles must not inherit other roles")
+        ownership = connection.execute(
+            "SELECT pg_has_role(%s, nspowner, 'MEMBER') OR pg_has_role(%s, datdba, 'MEMBER') FROM pg_namespace CROSS JOIN pg_database WHERE nspname=%s AND datname=current_database()",
+            (role, role, schema),
+        ).fetchone()
+        if ownership is None or ownership[0]:
+            raise ValueError("runtime roles must not own the database or schema")
         owners = connection.execute(
             "SELECT count(*) FROM pg_tables WHERE schemaname=%s AND tableowner=%s", (schema, role)
         ).fetchone()

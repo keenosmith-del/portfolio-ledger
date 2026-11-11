@@ -46,3 +46,19 @@ First pg_restore into a new disposable database exited 1 because its default pub
 ## D021 — Public-browser dialog synchronization
 
 First public case timed out navigating behind an asynchronously opened import modal: Escape had fired before open. Second rerun reached evidence/CSV and all direct-write denial assertions but incorrectly expected Close to remain focused after clicking Download. Helper now waits for dialog, focuses Close, sends Escape and asserts disappearance. Original finance assertions retained; independent design test still checks automatic focus/restoration. Public business-record comparison remained unchanged. Final public rerun recorded in journal.
+
+## D022 — Runtime schema ownership overlooked by privilege guard
+
+Final review found role setup/readiness checked table ownership and role flags but not schema/database ownership. A schema owner can drop its schema even without owning individual evidence tables. New actual reproducer failed (1 failed / 0.50s: missing ValueError). Added explicit database/schema membership/ownership rejection and a readiness probe that temporarily assigns isolated schema ownership to runtime role, expects 503, then restores it. Full green verification recorded in journal.
+
+## D023 — Intermediate navigation transition fails contrast
+
+Faster final Chrome run produced 5 passes/1 failure (19.0s): unchanged axe audit observed selected/unselected nav mid-transition with contrast 1.12/2.23. Removed nav transitions so background/text change atomically. The complete automated audit remains enabled; final rerun recorded in journal. Manual screenshot QA also required waiting for actual Audit rows and returning scroll to top before replacing the public-review image.
+
+## D024 — Standalone screenshot session cleanup URL
+
+After successfully writing screenshots, capture helper failed its new logout request with Invalid URL because standalone browser context had no base URL. Added explicit loopback base URL and guaranteed browser close in finally. Complete rerun exited 0 and revoked its session. This was capture tooling, not product authentication or financial persistence.
+
+## D025 — Readiness proxy omitted Host under strict trusted-host enforcement
+
+Actual frontend `/ready` returned 400 while direct API was healthy. Nginx forwarded its internal upstream Host only on this location. Both local and production configs now forward the original browser Host/protocol, retaining strict trusted-host policy. Original Chrome journey now verifies the real readiness dialog; public case asserts same-origin readiness HTTP 200. Corrected route returns ready/b003; final private/public suites pass (33.1s / 9.9s).

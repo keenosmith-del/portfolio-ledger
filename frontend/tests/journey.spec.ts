@@ -76,6 +76,12 @@ test("reviewer completes persisted import, evidence, review and billing journey"
   await expect(page.locator("tbody").first()).toContainText(
     "billing.preview_created",
   );
+  await page.getByRole("button", { name: "Check readiness" }).click();
+  await expect(
+    page.getByRole("dialog", { name: "Readiness check" }),
+  ).toContainText("Database ready");
+  await expect(page.getByRole("dialog")).toContainText("b003");
+  await page.getByRole("button", { name: "Close dialog" }).click();
   await page
     .getByLabel("Select portfolio")
     .selectOption({ label: "Harbourlight Estates" });

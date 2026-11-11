@@ -7,10 +7,13 @@ async function closeWithEscape(page: import("@playwright/test").Page) {
   await expect(page.getByRole("dialog")).toHaveCount(0);
 }
 
+test.use({ viewport: { width: 1440, height: 900 } });
+
 test("public reviewer browses evidence and CSV with all direct business writes denied", async ({
   page,
 }) => {
   await page.goto("/");
+  expect((await page.request.get("/ready")).status()).toBe(200);
   await page.getByRole("button", { name: "Explore read-only demo" }).click();
   await expect(page.getByLabel("Select portfolio")).toBeVisible();
   const portfolios = await page.request.get("/api/portfolios");
@@ -100,6 +103,19 @@ test("public reviewer browses evidence and CSV with all direct business writes d
   await expect(
     page.getByRole("heading", { name: "Execution & audit timeline" }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Refresh", exact: true }),
+  ).toBeEnabled();
+  await expect(
+    page
+      .locator(".panel")
+      .filter({
+        has: page.getByRole("heading", { name: "Execution & audit timeline" }),
+      })
+      .locator("tbody tr")
+      .first(),
+  ).toBeVisible();
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: "../docs/evidence/ui/after/public-review-audit.png",
     fullPage: true,

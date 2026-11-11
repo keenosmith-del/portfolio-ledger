@@ -3,22 +3,26 @@ from pathlib import Path
 from typing import Literal, Self
 from urllib.parse import urlsplit
 
-from pydantic import model_validator
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import make_url
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=Path(__file__).resolve().parents[3] / ".env", extra="ignore"
+        env_file=Path(__file__).resolve().parents[3] / ".env",
+        extra="ignore",
+        hide_input_in_errors=True,
     )
-    database_url: str = "postgresql+psycopg://ledger:ledger_local@localhost:5438/ledger"
+    database_url: str = Field(
+        default="postgresql+psycopg://ledger:ledger_local@localhost:5438/ledger", repr=False
+    )
     app_env: Literal["development", "test", "production"] = "development"
     cookie_secure: bool = False
     allowed_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
     allowed_hosts: list[str] = ["localhost", "127.0.0.1", "testserver"]
     trusted_proxy_ips: list[str] = []
-    demo_password: str = ""
+    demo_password: str = Field(default="", repr=False)
     public_review_enabled: bool = False
     public_demo_read_only: bool = False
     seed_synthetic_demo: bool = False
@@ -55,6 +59,8 @@ class Settings(BaseSettings):
                 raise ValueError("unbounded proxy trust forbidden")
         if (
             url.get_backend_name() != "postgresql"
+            or not url.username
+            or not url.host
             or not url.password
             or len(url.password) < 20
             or url.username in {"ledger", "postgres"}

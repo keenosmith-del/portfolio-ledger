@@ -223,7 +223,12 @@ def ready(db: Session = Depends(get_db, scope="function")) -> dict[str, str]:
                 "SELECT count(*) FROM pg_tables WHERE schemaname = current_schema() AND pg_has_role(current_user, tableowner, 'MEMBER')"
             )
         )
-        if privileged or owner:
+        namespace_owner = db.scalar(
+            text(
+                "SELECT pg_has_role(current_user, nspowner, 'MEMBER') OR pg_has_role(current_user, datdba, 'MEMBER') FROM pg_namespace CROSS JOIN pg_database WHERE nspname=current_schema() AND datname=current_database()"
+            )
+        )
+        if privileged or owner or namespace_owner:
             raise HTTPException(503, "runtime_role_is_privileged")
     return {"status": "ready", "schema": ",".join(sorted(versions))}
 

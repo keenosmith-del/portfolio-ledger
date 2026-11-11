@@ -257,7 +257,9 @@ def test_production_configuration_and_owner_readiness(client: TestClient, monkey
         public_review_enabled=True,
         public_demo_read_only=True,
     )
-    assert Settings(_env_file=None, **valid).cookie_secure
+    valid_settings = Settings(_env_file=None, **valid)
+    assert valid_settings.cookie_secure
+    assert "synthetic-test-password-only" not in repr(valid_settings)
     for change in [
         dict(cookie_secure=False),
         dict(allowed_origins=["http://demo.example.invalid"]),
@@ -384,7 +386,12 @@ def test_separate_runtime_roles_complete_financial_journey(
             )
             monkeypatch.setattr(settings, "app_env", "production")
             assert client.get("/ready").status_code == 200
+            with owner.begin() as connection:
+                connection.execute(text(f'ALTER SCHEMA "{schema}" OWNER TO "{api_role}"'))
+            assert client.get("/ready").status_code == 503
     finally:
+        with owner.begin() as connection:
+            connection.execute(text(f'ALTER SCHEMA "{schema}" OWNER TO CURRENT_USER'))
         for engine in engines:
             engine.dispose()
         with owner.begin() as connection:
@@ -408,3 +415,37 @@ def test_public_scope_rechecked_after_session(
         portfolio.synthetic_demo = False
     assert client.get("/api/portfolios").json() == []
     assert client.get(f"/api/portfolios/{demo['a']}/overview").status_code == 404
+
+
+def test_runtime_grants_reject_schema_owner(
+    factory: sessionmaker[Session], demo: dict[str, Any]
+) -> None:
+    from uuid import uuid4
+
+    import pytest
+
+    from app.operations.roles import grant_runtime
+
+    api_role, worker_role = "test_api_" + uuid4().hex, "test_worker_" + uuid4().hex
+    engine = factory.kw["bind"]
+    with engine.begin() as connection:
+        schema = connection.scalar(text("SELECT current_schema()"))
+        for role in (api_role, worker_role):
+            connection.execute(
+                text(
+                    f'CREATE ROLE "{role}" NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS'
+                )
+            )
+        connection.execute(text(f'ALTER SCHEMA "{schema}" OWNER TO "{api_role}"'))
+    try:
+        with (
+            pytest.raises(ValueError, match="own the database or schema"),
+            engine.begin() as connection,
+        ):
+            grant_runtime(connection.connection.driver_connection, schema, api_role, worker_role)
+    finally:
+        with engine.begin() as connection:
+            connection.execute(text(f'ALTER SCHEMA "{schema}" OWNER TO CURRENT_USER'))
+            for role in (api_role, worker_role):
+                connection.execute(text(f'DROP OWNED BY "{role}"'))
+                connection.execute(text(f'DROP ROLE "{role}"'))

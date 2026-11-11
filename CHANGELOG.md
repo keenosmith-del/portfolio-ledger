@@ -35,4 +35,4 @@ Chronology and initial failed checkpoints remain in Git and docs rather than bei
 - Fail-closed production settings, dynamic Alembic readiness, host/proxy controls, streamed request limits, error headers, session cleanup/caps and review throttling.
 - Separate migration release task, non-root/capability-restricted containers, standalone production contract and owner-run distinct runtime grants, tested through a complete financial journey.
 - Added actual local backup/restore drill, dependency scans, style guard, WCAG browser audit and responsive/keyboard/read-only regressions.
-- Verified 39 backend tests and six browser cases at this checkpoint; actual 10k import/replay and backup evidence linked in validation. Public-browser/restart final checks continue in the journal. Public deployment/hosted CI remain gated, no cloud claim.
+- Verified 41 backend tests, six private and one public browser cases; actual 10k import/replay, local backup/restore, complete restart and reviewed screenshots linked in validation. Public deployment/hosted CI remain gated, no cloud claim.

@@ -36,3 +36,5 @@ The prior section records the original release; current candidate results follow
 | 10k release acceptance | [JSON](evidence/acceptance-release-ui.json) | 190.983s / 82.724s; exact 10,000 postings and ZAR 18,750,000.00 |
 | Isolated local restore | [JSON](evidence/backup-restore.json), scripts/backup_restore.py | 13 business tables equal; restored immutability; source unchanged |
 | Production gates | [Deployment](deployment.md), [security](security.md) | Local controls tested; hosted gates remain NO-GO |
+
+Final candidate: **41 backend tests**, **6 private + 1 public Chrome cases**; all static/build/style checks pass. [Public mutation-denial/state equality](evidence/public-review.json), [full release restart](evidence/persistence-release.json), [reviewed public Audit](evidence/ui/after/public-review-audit.png). D022 schema ownership and D023 transition contrast have actual red-to-green evidence. Hosted Actions/public infrastructure remain unverified.

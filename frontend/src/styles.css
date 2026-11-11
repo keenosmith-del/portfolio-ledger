@@ -141,6 +141,7 @@ nav {
   gap: 6px;
 }
 nav button {
+  transition: none;
   display: flex;
   align-items: center;
   text-align: left;
