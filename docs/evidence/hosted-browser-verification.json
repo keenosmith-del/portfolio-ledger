@@ -1,7 +1,7 @@
 {
-  "verified_at": "2026-11-11T18:21:19.293444+00:00",
+  "verified_at": "2026-11-11T18:45:45.293683+00:00",
   "url": "https://web-production-6a3f45e7.up.railway.app",
-  "deployed_revision": "6a3c6cb",
+  "deployed_revision": "6765a8bd59fb5ee956d5f50800b28c58cb15c852",
   "public_journey": {
     "passed": true,
     "case_seconds": 21.7,
@@ -36,5 +36,14 @@
   "failed_attempts": [
     "negative Host override caused expected TLS certificate rejection; test initially treated it as failure",
     "cleanup expectation corrected from 200 to actual 204; session was revoked"
-  ]
+  ],
+  "final_hosted_suite": {
+    "passed": 2,
+    "failed": 0,
+    "suite_seconds": 31.5,
+    "public_case_seconds": 22.7,
+    "security_case_seconds": 7.1
+  },
+  "forwarded_identity_spoof_rejected": true,
+  "manual_invalid_host_https_status": 404
 }

@@ -1,5 +1,8 @@
 {
-  "verified_at": "2026-11-11T18:12:28.262038+00:00",
+  "verified_at": "2026-11-11T18:28:51.025074+00:00",
+  "explicit_web_api_worker_restart_accepted": true,
+  "web_restart_confirmed_by_new_nginx_startup_log": true,
+  "api_worker_database_sessions_replaced": true,
   "exact_business_ids_unchanged": true,
   "ledger_total_zar": "19500.00",
   "counts": {
@@ -10,6 +13,5 @@
     "audit_events": 13,
     "exceptions": 7,
     "import_jobs": 4
-  },
-  "boundary": "after synthetic lease recovery through CI-gated service rollout; explicit full restart still pending"
+  }
 }

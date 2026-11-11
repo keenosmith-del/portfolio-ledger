@@ -23,3 +23,9 @@ Owner release completed to b003; both actual runtime connections passed all owne
 ## Hosted application accepted; final operational gates pending
 
 Public URL: https://web-production-6a3f45e7.up.railway.app . Public /ready 200/b003, HTTPS/HSTS/secure cookie flags verified. Actual public browser journey passed 21.7s, security follow-up 6.5s. Five business writes denied, persisted synthetic evidence/CSV/audit inspected. Exact rollout persistence: 9 postings / ZAR 19,500.00, unchanged business IDs. Owner failure/crash Email & In-App notifications verified enabled and actual in-app failures observed. Final logging classification correction passes static checks and 46 local tests/22.94s; rollout, explicit full restart and default-branch scheduled monitoring pending.
+
+## Final hosted release — GO
+
+All three Railway services are SUCCESS on merged main 6765a8bd; only web is public: https://web-production-6a3f45e7.up.railway.app . Code CI [43078985342](https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43078985342) passed. Final actual hosted browser suite: two passed/31.5s. Neon verified-client-TLS/runtime grants/current b003, synthetic-only persisted review, five public write denials, isolated restore, worker lease recovery, exact restart persistence and active availability monitoring passed. Sanitized [release evidence](../evidence/railway-release-verification.json) records actual service deployments.
+
+Operational limits: trial/free quotas, six-hour Neon history, email inbox delivery not inspected, and API restart required to refresh exact proxy trust after future web replacement. No paid changes authorized. Final documentation-only commit does not change deployed application code; any automatic documentation-only CI is reported separately rather than inferred.

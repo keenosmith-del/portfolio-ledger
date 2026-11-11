@@ -7,5 +7,7 @@
   "lease_expiry_injected": true,
   "actual_railway_worker_restart": false,
   "ledger_unchanged": true,
-  "restart_attempt_result": "latest deployment not restartable"
+  "restart_attempt_result": "latest deployment not restartable",
+  "explicit_worker_restart_subsequently_verified": true,
+  "restart_verification": "new runtime database session after accepted restart; persisted business IDs and total unchanged"
 }

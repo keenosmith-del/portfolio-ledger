@@ -259,3 +259,21 @@ Observed normal API status-200 and worker success logs mislabeled error in Railw
 ## 2026-11-11 18:24:45 UTC — Final promotion configuration prepared
 
 Safe IaC plan/apply added per-service source watch paths (/frontend/** and /backend/**), preventing required evidence-only commits from redeploying the demo. No variables owned/read/written by IaC. Main-source promotion is now authored but intentionally NOT applied until PR merge, to avoid deploying pre-deployment main. Actual manual invalid-Host HTTPS probe returned 404 with certificate verification intact. Owner notification settings confirmed through native Console; no changes needed. Final monitoring patch CI 43076991366 initially pending without jobs (created 18:21:29 UTC); no queued-run success inferred. Public accepted 6a3c6cb remains online.
+
+## 2026-11-11 18:39:10 UTC — Main merge, explicit restart and active availability accepted
+
+Final candidate e24c642 passed CI 43077538957: 46 PostgreSQL / 22.64s / one warning, private six/23.1s and public one/3.3s, audits/static and isolated 10k acceptance. Superseded d06c0c4 push run stayed active without running steps and blocked current PR queue; normal cancellation then force-cancel accepted, later verified cancelled. Current run then completed successfully; no financial test suppression.
+
+PR #3 marked ready and merged at 18:33:58 UTC, merge 6765a8bd. Explicitly deployed accepted e24c642 (all three SUCCESS), preserving CI gate despite stale queued commits. Safe IaC main-source promotion applied only after merge. Local checkout fast-forwarded to the merge, preserving sanitized evidence changes. Main CI and main rollout still pending at this checkpoint.
+
+Explicit current web restart produced new Nginx startup logs at 18:27:06; subsequent API and worker restart accepted. Verified actual API/worker database sessions replaced, exact business IDs and ZAR 19,500 unchanged (9 ledger, 3 leases, 2 previews/3 lines, 13 audits, 7 exceptions, 4 jobs). This completes the previously pending actual restart gate; earlier failed CLI shortcut remains separately recorded. Actual small HTTPS availability script passed /, /ready and /api/auth/options. Owner/release-key audit passed on live service variables: none present, API/worker distinct verify-full direct identities, web no DATABASE_URL.
+
+Scheduled workflow now exists on default main and is active. Dispatched actual hosted run 43079112435: passed; 15-minute cron enabled. Owner Railway failure/crash/OOM Email & In-App channels already enabled; earlier real in-app failure delivery verified, inbox not inspected. Operator recovery secrets copied to ignored mode-0600 .env.deployment.json (outside runtime build contexts), and exact actual credential scan of every tracked file passed. No paid upgrade or extra SSH key created.
+
+## 2026-11-11 18:45:45 UTC — Final hosted release accepted; verification stopped
+
+Main 6765a8bd CI 43078985342 passed. All Railway services SUCCESS on that exact merge: API 830c46fd, web d9dbeade, worker 9907ca71. Only web public. Refreshed API after web replacement. Actual final hosted Playwright: two passed / 31.5s (public 22.7s, security 7.1s). Readiness 200/b003, actual forwarded-header spoof ignored (server access saw controlled edge identity), invalid HTTP Host 404 with TLS verification intact. Runtime success events now explicitly info in Railway logs. Effective actual Neon grants verified for both roles: API cannot insert/update/delete ledger; worker cannot read users/sessions; neither can mutate source registry or create schema objects. Verified client TLS/current b003 and ownership boundaries remain passing.
+
+GO for public synthetic read-only demo. No paid upgrades, public API/worker domains, owner runtime credentials, real finance data or public load tests. Trial/free quotas, six-hour history, uninspected email inbox delivery and exact-proxy refresh after future web replacement remain documented operational limits. Final restart/role/monitoring/browser evidence saved.
+
+Owner raised usage cost. Repeated CI/verification exceeded the useful scope; stopped further checks. Saving documentation/evidence only to main; accepted deployment-code CI remains the release gate. Any automatic documentation-only CI is not awaited or claimed passed.

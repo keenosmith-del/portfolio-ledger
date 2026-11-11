@@ -135,3 +135,17 @@ Neon observed Free retention is six hours. That short recovery window and an on-
 The application is reachable at https://web-production-6a3f45e7.up.railway.app . Hosted reviewer journey and security follow-up passed on 6a3c6cb, with public /ready 200/b003 and HTTP redirect 301. The API/worker runtime roles and isolated hosted restore passed. Owner Railway defaults already deliver deployment failure/crash/OOM alerts via Email & In-App; prior in-app failure delivery was observed. Explicit full restart and the default-branch scheduled availability workflow remain final gates at this checkpoint.
 
 Service watch paths are limited to /frontend/** and /backend/**. Required journal/evidence updates therefore do not restart runtime containers. Infrastructure changes still require explicit reviewed plan/apply. After any web replacement, refresh API's exact proxy addresses by restarting API and verify /ready and secure sessions. No broad IP trust fallback is permitted.
+
+### Accepted operational evidence
+
+PR #3 merged to main as 6765a8bd after e24c642 CI passed 46 PostgreSQL tests, isolated 10k acceptance and private/public browser suites. Main source configuration applied afterward. Actual explicit web/API/worker restart replaced runtime sessions and preserved all tracked business IDs and ZAR 19,500.00. Actual secret-key audit confirms no owner/release credentials on ordinary services and no database credential on web.
+
+The default-branch availability workflow is active with the public URL configured. Actual run [43079112435](https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43079112435) passed. Railway owner's Deployment Failed and Crashed/OOM defaults are Email & In-App, and real in-app failure notifications were observed. Inbox delivery was not inspected. Runtime application error JSON uses explicit level/message and sanitized request identifiers; consult Railway Logs with @event:http_request, @level:error and HTTP 5xx filters.
+
+Owner recovery configuration is retained only in ignored local `.env.deployment.json` with mode 0600 and the approved provider CLI private stores. Normal services never load that operator JSON. The temporary plaintext API-key document was removed. No secrets, raw logs or traces are committed. Trial/free quota expiry and six-hour Neon history are operational limits; no paid plan or longer retention was authorized.
+
+## Final hosted release — GO
+
+All three Railway services are SUCCESS on merged main 6765a8bd; only web is public: https://web-production-6a3f45e7.up.railway.app . Code CI [43078985342](https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43078985342) passed. Final actual hosted browser suite: two passed/31.5s. Neon verified-client-TLS/runtime grants/current b003, synthetic-only persisted review, five public write denials, isolated restore, worker lease recovery, exact restart persistence and active availability monitoring passed. Sanitized [release evidence](evidence/railway-release-verification.json) records actual service deployments.
+
+Operational limits: trial/free quotas, six-hour Neon history, email inbox delivery not inspected, and API restart required to refresh exact proxy trust after future web replacement. No paid changes authorized. Final documentation-only commit does not change deployed application code; any automatic documentation-only CI is reported separately rather than inferred.

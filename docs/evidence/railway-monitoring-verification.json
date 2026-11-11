@@ -1,5 +1,5 @@
 {
-  "verified_at": "2026-11-11T18:21:19.293444+00:00",
+  "verified_at": "2026-11-11T18:39:10.209763+00:00",
   "railway_owner_preferences_observed": true,
   "deployment_failed_delivery": "Email & In-App",
   "deployment_crashed_oom_delivery": "Email & In-App",
@@ -7,6 +7,11 @@
   "actual_in_app_failure_notifications_observed": true,
   "email_inbox_delivery_not_inspected": true,
   "github_availability_url_variable_set": true,
-  "github_scheduled_probe_active": false,
-  "scheduled_probe_blocker": "workflow not yet merged into default branch"
+  "github_scheduled_probe_active": true,
+  "github_workflow_state": "active",
+  "github_probe_schedule": "*/15 * * * *",
+  "github_manual_probe_run": "https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43079112435",
+  "github_manual_probe_passed": true,
+  "local_actual_hosted_probe_passed": true,
+  "live_api_success_logs_classified_info": true
 }

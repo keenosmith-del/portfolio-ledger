@@ -1,0 +1,37 @@
+{
+  "verified_at": "2026-11-11T18:45:45.293683+00:00",
+  "project": "portfolioledger",
+  "public_url": "https://web-production-6a3f45e7.up.railway.app",
+  "services": {
+    "api": {
+      "status": "SUCCESS",
+      "deployment_id": "830c46fd-d4a9-4d44-bab3-885afa23da7d",
+      "commit": "6765a8bd59fb5ee956d5f50800b28c58cb15c852",
+      "public": false,
+      "branch": "main"
+    },
+    "web": {
+      "status": "SUCCESS",
+      "deployment_id": "d9dbeade-7907-4e75-a482-ea1cdde1a9f6",
+      "commit": "6765a8bd59fb5ee956d5f50800b28c58cb15c852",
+      "public": true,
+      "branch": "main"
+    },
+    "worker": {
+      "status": "SUCCESS",
+      "deployment_id": "9907ca71-9a51-41fd-b7d2-96c7fdeafa8e",
+      "commit": "6765a8bd59fb5ee956d5f50800b28c58cb15c852",
+      "public": false,
+      "branch": "main"
+    }
+  },
+  "code_ci": "https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43078985342",
+  "code_ci_passed": true,
+  "decision": "GO for the synthetic public read-only demonstration",
+  "limits": [
+    "Railway trial/free quotas; no paid upgrade authorized",
+    "Neon history retention six hours",
+    "Email alert settings enabled; inbox delivery not inspected",
+    "Restart API after web replacement to refresh exact proxy addresses"
+  ]
+}

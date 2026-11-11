@@ -49,3 +49,6 @@ Hosted code candidate 65fdea6 passed full [Actions](https://github.com/keenosmit
 
 - [Actual hosted browser checks](evidence/hosted-browser-verification.json), [reviewer screenshot](evidence/ui/hosted/public-review-audit.png).
 - [Railway persistence](evidence/railway-persistence-verification.json), [injected worker lease recovery](evidence/railway-worker-recovery.json), [notification preferences](evidence/railway-monitoring-verification.json). Explicit full restart and active availability schedule tracked separately until verified.
+
+- [Final Railway release verification](evidence/railway-release-verification.json): all main services SUCCESS, public-domain boundary, passing code CI and GO decision.
+- [Actual runtime secret boundary](evidence/railway-secret-boundary-verification.json): owner/release keys absent, separate runtime identities, no web DB credentials.

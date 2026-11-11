@@ -9,7 +9,19 @@
     "migration_heads": [
       "b003"
     ],
-    "runtime_role_verified": true
+    "runtime_role_verified": true,
+    "verified_at": "2026-11-11T18:44:17.646384+00:00",
+    "effective_table_privileges": {
+      "ledger_entries.INSERT": false,
+      "ledger_entries.UPDATE": false,
+      "ledger_entries.DELETE": false,
+      "integration_sources.INSERT": false,
+      "integration_sources.UPDATE": false,
+      "users.SELECT": true,
+      "sessions.SELECT": true
+    },
+    "can_create_in_public_schema": false,
+    "can_create_database_schema": false
   },
   "worker": {
     "tls": true,
@@ -21,6 +33,18 @@
     "migration_heads": [
       "b003"
     ],
-    "runtime_role_verified": true
+    "runtime_role_verified": true,
+    "verified_at": "2026-11-11T18:44:27.399741+00:00",
+    "effective_table_privileges": {
+      "ledger_entries.INSERT": true,
+      "ledger_entries.UPDATE": false,
+      "ledger_entries.DELETE": false,
+      "integration_sources.INSERT": false,
+      "integration_sources.UPDATE": false,
+      "users.SELECT": false,
+      "sessions.SELECT": false
+    },
+    "can_create_in_public_schema": false,
+    "can_create_database_schema": false
   }
 }
