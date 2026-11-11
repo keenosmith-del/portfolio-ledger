@@ -9,6 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db.models import (
+    AuditEvent,
     ExceptionRecord,
     ImportJob,
     Lease,
@@ -30,7 +31,13 @@ def lease_versions(
     rows = db.execute(
         select(Lease, LeaseVersion)
         .join(LeaseVersion, Lease.id == LeaseVersion.lease_id)
-        .where(Lease.portfolio_id == portfolio, LeaseVersion.created_at <= cutoff)
+        .join(RawRecord, RawRecord.id == LeaseVersion.raw_id)
+        .join(ImportJob, ImportJob.id == RawRecord.job_id)
+        .where(
+            Lease.portfolio_id == portfolio,
+            LeaseVersion.created_at <= cutoff,
+            ImportJob.completed_at <= cutoff,
+        )
         .order_by(Lease.id, LeaseVersion.revision.desc())
     ).all()
     seen: set[str] = set()
@@ -68,9 +75,10 @@ def reconcile(
     db.flush()
     entries = list(
         db.scalars(
-            select(LedgerEntry).where(
-                LedgerEntry.portfolio_id == portfolio, LedgerEntry.created_at <= cutoff
-            )
+            select(LedgerEntry)
+            .join(RawRecord, RawRecord.id == LedgerEntry.raw_id)
+            .join(ImportJob, ImportJob.id == RawRecord.job_id)
+            .where(LedgerEntry.portfolio_id == portfolio, LedgerEntry.created_at <= cutoff)
         )
     )
     by_lease: dict[str, list[LedgerEntry]] = {}
@@ -127,9 +135,12 @@ def reconcile(
                 )
             )
     for row in db.scalars(
-        select(RawRecord).where(
+        select(RawRecord)
+        .join(ImportJob, ImportJob.id == RawRecord.job_id)
+        .where(
             RawRecord.portfolio_id == portfolio,
             RawRecord.created_at <= cutoff,
+            ImportJob.completed_at <= cutoff,
             RawRecord.status == "quarantined",
         )
     ):
@@ -181,22 +192,38 @@ def preview(
     )
     if old:
         return old
-    # Snapshot exception state at generation. Historical evidence remains immutable afterward.
-    unresolved = list(
+    # Reconstruct lifecycle at cutoff from immutable audit evidence.
+    records = list(
         db.scalars(
-            select(ExceptionRecord.id).where(
-                ExceptionRecord.portfolio_id == portfolio,
-                ExceptionRecord.created_at <= cutoff,
-                ExceptionRecord.status.in_(["open", "investigating"]),
+            select(ExceptionRecord).where(
+                ExceptionRecord.portfolio_id == portfolio, ExceptionRecord.created_at <= cutoff
             )
         )
     )
+    statuses = {record.id: "open" for record in records}
+    for action in db.scalars(
+        select(AuditEvent)
+        .where(
+            AuditEvent.portfolio_id == portfolio,
+            AuditEvent.created_at <= cutoff,
+            AuditEvent.action.like("exception.%"),
+        )
+        .order_by(AuditEvent.created_at, AuditEvent.id)
+    ):
+        if action.resource_id in statuses:
+            statuses[action.resource_id] = str(action.details.get("new_status", "open"))
+    unresolved = [key for key, status in statuses.items() if status in {"open", "investigating"}]
+    calculated = []
+    for lease, version in lease_versions(db, portfolio, cutoff):
+        included = eligible(version.start_date, version.end_date, version.status, month)
+        amount = money(pricing.monthly_fee) if included else Decimal("0.00")
+        calculated.append((lease, included, amount))
     result = Preview(
         portfolio_id=portfolio,
         month=month,
         cutoff=cutoff,
         pricing_id=pricing.id,
-        total=Decimal("0.00"),
+        total=sum((line[2] for line in calculated), Decimal("0.00")),
         config={
             "version": pricing.version,
             "monthly_fee": str(pricing.monthly_fee),
@@ -209,10 +236,7 @@ def preview(
     )
     db.add(result)
     db.flush()
-    for lease, version in lease_versions(db, portfolio, cutoff):
-        included = eligible(version.start_date, version.end_date, version.status, month)
-        amount = money(pricing.monthly_fee) if included else Decimal("0.00")
-        result.total += amount
+    for lease, included, amount in calculated:
         db.add(
             PreviewLine(
                 portfolio_id=portfolio,

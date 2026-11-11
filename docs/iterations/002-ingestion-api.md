@@ -11,3 +11,5 @@ Correction plan: calculate all lines and total before first header insertion; co
 Passing behaviors in this first run: identical replay, payload conflict, concurrent ingestion, out-of-order corrections, deterministic crash rollback and lease recovery, database immutability/composite scope constraints, portfolio IDOR, reviewer denial, upload rejection and bounded attempts.
 
 Final verification: pending correction.
+
+Correction and verification: calculate immutable header total before INSERT; use function-scoped FastAPI dependencies to finish transactions before returning HTTP success. Added portfolio-wide financial publication lock and completed-import cutoff filtering, plus audit-based exception state reconstruction. Full rerun: **17 passed, 1 warning in 13.70s**; strict mypy passed 15 files. The warning is upstream Starlette's httpx TestClient deprecation, not a failed test. The concurrency and HTTP regression tests both pass without weakening the database trigger. Import/API increment accepted for the tested scope. Historical cutoff regressions and performance remain next verification scope.

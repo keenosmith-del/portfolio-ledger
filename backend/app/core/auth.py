@@ -39,7 +39,7 @@ def rate_limit(db: Session, key: str, maximum: int, seconds: int = 60) -> None:
         raise HTTPException(429, "rate_limit_exceeded", headers={"Retry-After": str(seconds)})
 
 
-def authenticate(request: Request, db: Session = Depends(get_db)) -> User:
+def authenticate(request: Request, db: Session = Depends(get_db, scope="function")) -> User:
     token = request.cookies.get("ledger_session", "")
     session = db.scalar(
         select(AuthSession).where(
@@ -63,7 +63,9 @@ def authenticate(request: Request, db: Session = Depends(get_db)) -> User:
 
 
 def authorized(
-    portfolio_id: str, user: User = Depends(authenticate), db: Session = Depends(get_db)
+    portfolio_id: str,
+    user: User = Depends(authenticate, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> User:
     if db.get(Access, (user.id, portfolio_id)) is None:
         raise HTTPException(404, "portfolio_not_found")

@@ -233,6 +233,7 @@ def process(db: Session, job_id: str, fail_after: int | None = None) -> None:
     job = db.scalar(select(ImportJob).where(ImportJob.id == job_id).with_for_update())
     if job is None or job.status != "processing":
         return
+    lock(db, "finance:" + job.portfolio_id)
     # Serialize all imports for one source; concurrent workers may process other sources.
     lock(db, "source:" + job.portfolio_id + ":" + job.source_key)
     rows: list[dict[str, Any]] = json.loads(job.payload)

@@ -17,3 +17,7 @@ Foundation verification: `cd backend && ../.venv/bin/alembic upgrade head` exite
 ## First integration run (red checkpoint)
 
 Starting foundation commit `52ecd33`, in-progress API/test changes. Command: `cd backend && ../.venv/bin/pytest -q`. Result: **2 failed, 15 passed, 11 warnings in 14.40s**. Failing: `test_reconcile_and_concurrent_preview` (immutable header UPDATE rejected) and `test_http_journey` (CSV 404 after rollback). Temporary isolated PostgreSQL schemas used, initial migration applied for every test. See D005 and iteration 002. No passing finance milestone claimed at this point.
+
+## Integration correction (green)
+
+Command: `cd backend && ../.venv/bin/pytest -q` after immutable-header and transaction-scope fixes: **17 passed, 1 warning in 13.70s**. `mypy backend/app`: success, 15 source files. The upstream Starlette TestClient httpx deprecation remains. Concurrent ingestion, preview uniqueness, deterministic crash recovery, append-only trigger, composite FK isolation, HTTP lifecycle/export, IDOR, read-only role, CSRF, bad upload and attempt limits now exercised successfully. This result precedes the frontend and larger acceptance benchmark.

@@ -192,7 +192,7 @@ def health() -> dict[str, str]:
 
 
 @app.get("/ready")
-def ready(db: Session = Depends(get_db)) -> dict[str, str]:
+def ready(db: Session = Depends(get_db, scope="function")) -> dict[str, str]:
     db.execute(text("SELECT 1"))
     version = db.scalar(text("SELECT version_num FROM alembic_version"))
     if version != "b001" or (settings.app_env == "production" and not settings.cookie_secure):
@@ -202,7 +202,10 @@ def ready(db: Session = Depends(get_db)) -> dict[str, str]:
 
 @app.post("/api/auth/login")
 def login(
-    data: Login, request: Request, response: Response, db: Session = Depends(get_db)
+    data: Login,
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     origin = request.headers.get("origin")
     if origin and origin not in [*settings.allowed_origins, str(request.base_url).rstrip("/")]:
@@ -245,7 +248,7 @@ def login(
 
 
 @app.get("/api/auth/me")
-def me(request: Request, user: User = Depends(authenticate)) -> dict[str, str]:
+def me(request: Request, user: User = Depends(authenticate, scope="function")) -> dict[str, str]:
     return {"email": user.email, "role": user.role, "csrf": request.state.auth_session.csrf}
 
 
@@ -253,8 +256,8 @@ def me(request: Request, user: User = Depends(authenticate)) -> dict[str, str]:
 def logout(
     request: Request,
     response: Response,
-    user: User = Depends(authenticate),
-    db: Session = Depends(get_db),
+    user: User = Depends(authenticate, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> None:
     db.delete(request.state.auth_session)
     response.delete_cookie("ledger_session", path="/")
@@ -262,7 +265,8 @@ def logout(
 
 @app.get("/api/portfolios")
 def portfolios(
-    user: User = Depends(authenticate), db: Session = Depends(get_db)
+    user: User = Depends(authenticate, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> list[dict[str, Any]]:
     return [
         obj(row)
@@ -277,7 +281,9 @@ def portfolios(
 
 @app.get("/api/portfolios/{portfolio_id}/overview")
 def overview(
-    portfolio_id: str, user: User = Depends(authorized), db: Session = Depends(get_db)
+    portfolio_id: str,
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     jobs = list(db.scalars(select(ImportJob).where(ImportJob.portfolio_id == portfolio_id)))
     versions = lease_versions(db, portfolio_id, now())
@@ -338,8 +344,8 @@ def leases(
     offset: int = Query(0, ge=0),
     limit: int = Query(25, ge=1, le=100),
     q: str = Query("", max_length=100),
-    user: User = Depends(authorized),
-    db: Session = Depends(get_db),
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     rows = [
         {
@@ -365,15 +371,18 @@ def ledger(
     portfolio_id: str,
     offset: int = Query(0, ge=0),
     limit: int = Query(25, ge=1, le=100),
-    user: User = Depends(authorized),
-    db: Session = Depends(get_db),
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return paged(db, LedgerEntry, portfolio_id, offset, limit)
 
 
 @app.get("/api/portfolios/{portfolio_id}/sources/{raw_id}")
 def source(
-    portfolio_id: str, raw_id: str, user: User = Depends(authorized), db: Session = Depends(get_db)
+    portfolio_id: str,
+    raw_id: str,
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return obj(scoped(db, RawRecord, portfolio_id, raw_id))
 
@@ -386,8 +395,8 @@ async def import_file(
     adapter: str = Form(max_length=30),
     source_key: str = Form(min_length=1, max_length=100, pattern=r"^[A-Za-z0-9_.:-]+$"),
     idempotency_key: str = Header(min_length=1, max_length=120),
-    user: User = Depends(authorized),
-    db: Session = Depends(get_db),
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     writable(user)
     rate_limit(db, "write:" + user.id, 60)
@@ -426,8 +435,8 @@ def imports(
     portfolio_id: str,
     offset: int = Query(0, ge=0),
     limit: int = Query(25, ge=1, le=100),
-    user: User = Depends(authorized),
-    db: Session = Depends(get_db),
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return paged(db, ImportJob, portfolio_id, offset, limit)
 
@@ -438,8 +447,8 @@ def import_detail(
     job_id: str,
     offset: int = Query(0, ge=0),
     limit: int = Query(25, ge=1, le=100),
-    user: User = Depends(authorized),
-    db: Session = Depends(get_db),
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     job = scoped(db, ImportJob, portfolio_id, job_id)
     rows = list(
@@ -465,8 +474,8 @@ def replay(
     job_id: str,
     request: Request,
     idempotency_key: str = Header(min_length=1, max_length=120),
-    user: User = Depends(authorized),
-    db: Session = Depends(get_db),
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     writable(user)
     rate_limit(db, "write:" + user.id, 60)
@@ -515,8 +524,8 @@ def run_reconciliation(
     portfolio_id: str,
     data: RunRequest,
     request: Request,
-    user: User = Depends(authorized),
-    db: Session = Depends(get_db),
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     writable(user)
     rate_limit(db, "write:" + user.id, 60)
@@ -525,7 +534,10 @@ def run_reconciliation(
 
 @app.get("/api/portfolios/{portfolio_id}/reconciliations/{run_id}")
 def reconciliation(
-    portfolio_id: str, run_id: str, user: User = Depends(authorized), db: Session = Depends(get_db)
+    portfolio_id: str,
+    run_id: str,
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return obj(scoped(db, Reconciliation, portfolio_id, run_id))
 
@@ -539,8 +551,8 @@ def exceptions(
     severity: str | None = None,
     reason: str | None = None,
     month: str | None = None,
-    user: User = Depends(authorized),
-    db: Session = Depends(get_db),
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     statement = select(ExceptionRecord).where(ExceptionRecord.portfolio_id == portfolio_id)
     if status:
@@ -575,8 +587,8 @@ def resolve(
     exception_id: str,
     data: ReviewRequest,
     request: Request,
-    user: User = Depends(authorized),
-    db: Session = Depends(get_db),
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     writable(user)
     record = db.scalar(
@@ -609,7 +621,9 @@ def resolve(
 
 @app.get("/api/portfolios/{portfolio_id}/pricing")
 def pricing(
-    portfolio_id: str, user: User = Depends(authorized), db: Session = Depends(get_db)
+    portfolio_id: str,
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> list[dict[str, Any]]:
     return [
         obj(row)
@@ -626,8 +640,8 @@ def create_preview(
     portfolio_id: str,
     data: RunRequest,
     request: Request,
-    user: User = Depends(authorized),
-    db: Session = Depends(get_db),
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     writable(user)
     rate_limit(db, "write:" + user.id, 60)
@@ -639,8 +653,8 @@ def previews(
     portfolio_id: str,
     offset: int = Query(0, ge=0),
     limit: int = Query(25, ge=1, le=100),
-    user: User = Depends(authorized),
-    db: Session = Depends(get_db),
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return paged(db, Preview, portfolio_id, offset, limit)
 
@@ -651,8 +665,8 @@ def preview_detail(
     preview_id: str,
     offset: int = Query(0, ge=0),
     limit: int = Query(25, ge=1, le=100),
-    user: User = Depends(authorized),
-    db: Session = Depends(get_db),
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     result = scoped(db, Preview, portfolio_id, preview_id)
     statement = select(PreviewLine).where(
@@ -675,8 +689,8 @@ def preview_detail(
 def export(
     portfolio_id: str,
     preview_id: str,
-    user: User = Depends(authorized),
-    db: Session = Depends(get_db),
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     result = scoped(db, Preview, portfolio_id, preview_id)
     lines = list(
@@ -700,7 +714,7 @@ def audit_events(
     portfolio_id: str,
     offset: int = Query(0, ge=0),
     limit: int = Query(25, ge=1, le=100),
-    user: User = Depends(authorized),
-    db: Session = Depends(get_db),
+    user: User = Depends(authorized, scope="function"),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return paged(db, AuditEvent, portfolio_id, offset, limit)

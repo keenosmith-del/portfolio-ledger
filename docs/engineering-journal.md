@@ -27,3 +27,9 @@ Generated initial Alembic revision against the empty local PostgreSQL database; 
 ## 2026-11-11 — Import/API integration, first red checkpoint
 
 Implemented API and synthetic seed/fixture generator. Strict mypy initially found six generic model errors; added a typed shared portfolio model base and reran successfully (15 files). The first actual PostgreSQL integration suite returned **2 failed, 15 passed in 14.40s**. D005: immutable billing snapshot header was flushed before its final total was calculated. Database guard rejected the later update. HTTP teardown permitted an apparent success before rollback, discovered by subsequent CSV export 404. Saving failing regression tests and the observed result before correction. This is an intentionally incomplete checkpoint, not an accepted phase.
+
+## 2026-11-11 — Immutable preview correction, green verification
+
+Corrected D005 by calculating preview lines/total before header insertion. Applied function-scoped FastAPI transaction dependencies so commit failures cannot be reported as successful responses. Refined cutoff design: financial reads serialize with source publication, completed imports bound source eligibility, and exception state reconstructs from audit records at the cutoff. Rerun: **17 passed, 1 upstream deprecation warning in 13.70s**, strict mypy passes 15 files, Ruff passes. This is the observed red-to-green transition from checkpoint `5f191c5`.
+
+Frontend development began with React/TypeScript, live API contract, all six operational views, source/report dialogs and CSV download. npm install completed: 72 packages, zero reported vulnerabilities. First build was invoked from repository root and failed ENOENT; corrected invocation uses frontend directory. Build/browser verification not yet claimed.
