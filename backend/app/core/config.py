@@ -1,4 +1,5 @@
 import ipaddress
+import re
 from pathlib import Path
 from typing import Literal, Self
 from urllib.parse import urlsplit
@@ -22,6 +23,9 @@ class Settings(BaseSettings):
     allowed_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
     allowed_hosts: list[str] = ["localhost", "127.0.0.1", "testserver"]
     trusted_proxy_ips: list[str] = []
+    trusted_proxy_hosts: list[str] = []
+    api_bind_host: Literal["0.0.0.0", "::"] = "0.0.0.0"
+    port: int = Field(default=8000, ge=1, le=65535)
     demo_password: str = Field(default="", repr=False)
     public_review_enabled: bool = False
     public_demo_read_only: bool = False
@@ -51,8 +55,11 @@ class Settings(BaseSettings):
             raise ValueError("production requires explicit trusted hosts")
         if any(urlsplit(o).hostname not in self.allowed_hosts for o in self.allowed_origins):
             raise ValueError("origin hosts must be trusted")
-        if not self.trusted_proxy_ips:
+        if not self.trusted_proxy_ips and not self.trusted_proxy_hosts:
             raise ValueError("production requires explicit proxy addresses")
+        for host in self.trusted_proxy_hosts:
+            if not re.fullmatch(r"[a-z0-9][a-z0-9-]*\.railway\.internal", host):
+                raise ValueError("proxy DNS must identify one Railway private service")
         for address in self.trusted_proxy_ips:
             network = ipaddress.ip_network(address)
             if network.prefixlen == 0:

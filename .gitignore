@@ -15,3 +15,5 @@ frontend/playwright-report/
 *.log
 *.egg-info/
 *.tsbuildinfo
+
+.railway/node_modules/

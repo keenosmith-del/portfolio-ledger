@@ -40,3 +40,6 @@ The prior section records the original release; current candidate results follow
 Final candidate: **41 backend tests**, **6 private + 1 public Chrome cases**; all static/build/style checks pass. [Public mutation-denial/state equality](evidence/public-review.json), [full release restart](evidence/persistence-release.json), [reviewed public Audit](evidence/ui/after/public-review-audit.png). D022 schema ownership and D023 transition contrast have actual red-to-green evidence. Hosted Actions/public infrastructure remain unverified.
 
 Hosted code candidate 65fdea6 passed full [Actions](https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43027530061): [CI steps/counts](evidence/hosted-ci.json), [hosted benchmark](evidence/acceptance-hosted.json), [runtime audit](evidence/runtime-dependency-audit.json). [Draft PR #2](https://github.com/keenosmith-del/portfolio-ledger/pull/2) is published with owner authorization; latest PR checks remain the merge gate. No public application deployment claimed.
+
+- [Railway/Neon deployment iteration](iterations/007-railway-neon-deployment.md): local image/config/test evidence and explicit outstanding hosted gates.
+- [Railway deployment architecture](adr/006-railway-neon-deployment.md): service/private proxy/owner credentials decision.

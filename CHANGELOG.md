@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased — Railway/Neon deployment preparation
+
+- Add per-service Docker configs, private same-origin Nginx proxy and exact DNS-resolved proxy trust.
+- Add direct verified-TLS Neon inspection and explicit owner-only release operation.
+- Local static checks, 44 PostgreSQL tests and both container builds pass. Hosted release remains unverified.
+
 ## 0.1.0 — Local verification release, 2026-11-11
 
 ### Implemented and verified

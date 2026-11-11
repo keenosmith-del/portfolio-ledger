@@ -66,3 +66,9 @@ Actual frontend `/ready` returned 400 while direct API was healthy. Nginx forwar
 ## D026 — Hosted bootstrap pip fails unsuppressed audit
 
 First actual candidate Actions run [43027005906](https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43027005906) failed at pip-audit: pip 25.0.1 bundled by runner venv, 12 reported findings in that single package (some advisory aliases duplicated). CI/local bootstrap and runtime image now explicitly upgrade pip>=26.2 before installation. Scanner remains enabled with no advisory suppressions. Actual hosted rerun outcomes recorded in journal/validation.
+
+## D027 — Railway root autodetection cannot build monorepo
+
+Actual failed deployment 169e2872 on 22ce9b4 used Railpack at repository root and reported it could not determine how to build the app. Added explicit Dockerfile configs with frontend/backend roots and distinct API/worker commands. Both containers build locally; actual Railway rebuild remains pending.
+
+Railway rejected new legacy TOML opt-in. Replaced with current `.railway/railway.ts`; official SDK 3.16.0 is isolated from app dependencies. Actual plan succeeded with safe web updates and api/worker creation, zero destruction, variables unmanaged. Existing service renamed web; private DNS update succeeded. Hosted apply/rebuild pending.
