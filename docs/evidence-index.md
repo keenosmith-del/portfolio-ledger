@@ -23,3 +23,20 @@ All results below were actually observed on 2026-11-11. Failed checkpoints remai
 Full database/container stop/start persistence comparison passed: [sanitized JSON](evidence/persistence-restart.json), reproducible with `scripts/persistence_smoke.py`. Browser traces and raw runtime logs are intentionally untracked; do not upload credential-bearing traces as evidence. The screenshots show state after repeated real review actions, so exception/job counts legitimately differ between captures and a fresh seed.
 
 Final post-restart browser journey/mobile: **2 passed in 6.9s**. Final static/type/build checks pass. No push, hosted Actions run or public frontend/API deployment is claimed.
+
+## Iteration 005/006 candidate evidence
+
+The prior section records the original release; current candidate results follow.
+
+| Evidence | Artifact | Observed status |
+|---|---|---|
+| Neutral design and shared components | [Iteration 005](iterations/005-design-system-and-navigation.md), [before](evidence/ui/before), [after](evidence/ui/after) | Actual synthetic screenshots; manually inspected |
+| Source/public/runtime boundaries | [Iteration 006](iterations/006-release-security.md), [ADR-005](adr/005-release-boundaries.md), backend/tests/test_release.py | Five genuine initial failures; expanded 39-test backend suite green |
+| Browser/axe/responsive regressions | frontend/tests/design.spec.ts, [validation](validation.md) | Six real Chrome cases; 36 screen/viewport combinations; zero selected axe violations |
+| 10k release acceptance | [JSON](evidence/acceptance-release-ui.json) | 190.983s / 82.724s; exact 10,000 postings and ZAR 18,750,000.00 |
+| Isolated local restore | [JSON](evidence/backup-restore.json), scripts/backup_restore.py | 13 business tables equal; restored immutability; source unchanged |
+| Production gates | [Deployment](deployment.md), [security](security.md) | Local controls tested; hosted gates remain NO-GO |
+
+Final candidate: **41 backend tests**, **6 private + 1 public Chrome cases**; all static/build/style checks pass. [Public mutation-denial/state equality](evidence/public-review.json), [full release restart](evidence/persistence-release.json), [reviewed public Audit](evidence/ui/after/public-review-audit.png). D022 schema ownership and D023 transition contrast have actual red-to-green evidence. Hosted Actions/public infrastructure remain unverified.
+
+Hosted code candidate 65fdea6 passed full [Actions](https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43027530061): [CI steps/counts](evidence/hosted-ci.json), [hosted benchmark](evidence/acceptance-hosted.json), [runtime audit](evidence/runtime-dependency-audit.json). [Draft PR #2](https://github.com/keenosmith-del/portfolio-ledger/pull/2) is published with owner authorization; latest PR checks remain the merge gate. No public application deployment claimed.

@@ -13,24 +13,29 @@ import app.db.session as sessions
 import app.workers.runner as worker
 from alembic import command
 from app.core.config import settings
-from app.db.models import Access, Portfolio, Pricing, User
+from app.db.models import Access, IntegrationSource, Portfolio, Pricing, User
 from app.main import app
 
 
 @pytest.fixture()
-def factory(monkeypatch: pytest.MonkeyPatch) -> Generator[sessionmaker[Session], None, None]:
+def factory(
+    monkeypatch: pytest.MonkeyPatch,
+    request: pytest.FixtureRequest,
+) -> Generator[sessionmaker[Session], None, None]:
     schema = "test_" + uuid4().hex
     admin = create_engine(settings.database_url)
     with admin.begin() as db:
         db.execute(text(f'CREATE SCHEMA "{schema}"'))
     engine = create_engine(
-        settings.database_url, connect_args={"options": f"-csearch_path={schema}"}, pool_size=10
+        settings.database_url,
+        connect_args={"options": f"-csearch_path={schema}"},
+        pool_size=10,
     )
     config = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
     config.set_main_option("script_location", str(Path(__file__).resolve().parents[1] / "alembic"))
     with engine.begin() as connection:
         config.attributes["connection"] = connection
-        command.upgrade(config, "head")
+        command.upgrade(config, getattr(request, "param", "head"))
     factory = sessionmaker(engine, expire_on_commit=False)
     monkeypatch.setattr(sessions, "SessionLocal", factory)
     monkeypatch.setattr(worker, "SessionLocal", factory)
@@ -50,22 +55,37 @@ def demo(factory: sessionmaker[Session]) -> dict[str, Any]:
 
     with factory.begin() as db:
         admin = User(
-            email="admin@test.invalid", role="admin", password_hash=hasher.hash("TestPassword123!")
+            email="admin@test.invalid",
+            role="admin",
+            password_hash=hasher.hash("TestPassword123!"),
         )
         analyst = User(
-            email="analyst@test.invalid", role="analyst", password_hash=admin.password_hash
+            email="analyst@test.invalid",
+            role="analyst",
+            password_hash=admin.password_hash,
         )
         reader = User(
-            email="reader@test.invalid", role="reviewer", password_hash=admin.password_hash
+            email="public-review@portfolioledger.test",
+            role="reviewer",
+            password_hash=admin.password_hash,
         )
         a, b = (
-            Portfolio(name="Test Cedar", adapter="atlaspm"),
+            Portfolio(name="Test Cedar", adapter="atlaspm", synthetic_demo=True),
             Portfolio(name="Test Harbour", adapter="meridianrent"),
         )
         db.add_all([admin, analyst, reader, a, b])
         db.flush()
         for user, portfolio in [(admin, a), (admin, b), (analyst, a), (reader, a)]:
             db.add(Access(user_id=user.id, portfolio_id=portfolio.id))
+        for p in (a, b):
+            db.add(
+                IntegrationSource(
+                    portfolio_id=p.id,
+                    source_key="source",
+                    adapter=p.adapter,
+                    upstream_account="test-primary",
+                )
+            )
         db.add_all(
             [
                 Pricing(
@@ -84,7 +104,8 @@ def demo(factory: sessionmaker[Session]) -> dict[str, Any]:
 def client(demo: dict[str, Any]) -> Generator[TestClient, None, None]:
     with TestClient(app, raise_server_exceptions=False) as client:
         response = client.post(
-            "/api/auth/login", json={"email": "admin@test.invalid", "password": "TestPassword123!"}
+            "/api/auth/login",
+            json={"email": "admin@test.invalid", "password": "TestPassword123!"},
         )
         assert response.status_code == 200, response.text
         client.headers["X-CSRF-Token"] = response.json()["csrf"]

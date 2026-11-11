@@ -1,3 +1,4 @@
+import secrets
 from datetime import date
 from decimal import Decimal
 
@@ -5,7 +6,7 @@ from sqlalchemy import select
 
 from app.core.auth import hasher
 from app.core.config import settings
-from app.db.models import Access, Portfolio, Pricing, User, now
+from app.db.models import Access, IntegrationSource, Portfolio, Preview, Pricing, User, now
 from app.db.session import SessionLocal
 from app.integrations.synthetic import atlas_feed, meridian_feed
 from app.services.common import audit, lock
@@ -14,6 +15,8 @@ from app.workers.runner import tick
 
 
 def seed() -> None:
+    if not settings.seed_synthetic_demo:
+        raise SystemExit("Explicit SEED_SYNTHETIC_DEMO=true is required")
     if len(settings.demo_password) < 12:
         raise SystemExit(
             "Set DEMO_PASSWORD (at least 12 characters) in your private .env before seeding"
@@ -25,11 +28,18 @@ def seed() -> None:
             ("admin@portfolioledger.test", "admin"),
             ("analyst@portfolioledger.test", "analyst"),
             ("reviewer@portfolioledger.test", "reviewer"),
+            ("public-review@portfolioledger.test", "reviewer"),
         ]:
             user = db.scalar(select(User).where(User.email == email))
             if user is None:
                 user = User(
-                    email=email, role=role, password_hash=hasher.hash(settings.demo_password)
+                    email=email,
+                    role=role,
+                    password_hash=hasher.hash(
+                        secrets.token_urlsafe(32)
+                        if email.startswith("public-review@")
+                        else settings.demo_password
+                    ),
                 )
                 db.add(user)
                 db.flush()
@@ -51,6 +61,21 @@ def seed() -> None:
                         effective_from=date(2026, 1, 1),
                     )
                 )
+            portfolio.synthetic_demo = True
+            source_key = adapter + "-demo"
+            source = db.get(IntegrationSource, (portfolio.id, source_key))
+            if source is None:
+                db.add(
+                    IntegrationSource(
+                        portfolio_id=portfolio.id,
+                        source_key=source_key,
+                        adapter=adapter,
+                        upstream_account=source_key,
+                    )
+                )
+            else:
+                source.enabled = True
+            db.flush()
             for user in users:
                 if user.role == "analyst" and adapter != "atlaspm":
                     continue
@@ -110,6 +135,15 @@ def seed() -> None:
                 )
     while tick():
         pass
+    from app.services.finance import preview, reconcile
+
+    with SessionLocal.begin() as db:
+        for portfolio in db.scalars(select(Portfolio).where(Portfolio.synthetic_demo.is_(True))):
+            if db.scalar(select(Preview.id).where(Preview.portfolio_id == portfolio.id).limit(1)):
+                continue
+            cutoff = now()
+            reconcile(db, portfolio.id, "2026-11", cutoff, admin.id, "seed-reviewer")
+            preview(db, portfolio.id, "2026-11", cutoff, admin.id, "seed-reviewer")
     print(
         "Seed complete. Synthetic identities: admin / analyst / reviewer @portfolioledger.test. Password is your private DEMO_PASSWORD. Seed does not rotate existing passwords."
     )

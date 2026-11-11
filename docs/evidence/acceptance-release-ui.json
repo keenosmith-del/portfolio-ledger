@@ -1,0 +1,34 @@
+{
+  "status": "passed",
+  "timestamp_utc": "2026-11-11T12:45:16.716932+00:00",
+  "python": "3.12.15",
+  "platform": "Darwin arm64",
+  "commit": "3a605a0",
+  "working_tree": "dirty",
+  "financial_events": 10000,
+  "artifact_bytes": 715499,
+  "receipts": [
+    {
+      "accepted": 10002,
+      "duplicates": 0,
+      "quarantined": 2
+    },
+    {
+      "accepted": 0,
+      "duplicates": 10002,
+      "quarantined": 2
+    }
+  ],
+  "first_import_seconds": 190.983,
+  "replay_seconds": 82.724,
+  "ledger_entries_after_replay": 10000,
+  "ledger_total_zar": "18750000.00",
+  "full_journey_seconds": 275.891,
+  "isolation": "temporary PostgreSQL schema; migrated from blank; removed on exit",
+  "branch": "codex/portfolio-ledger-release-ui-v2",
+  "measurement_context": "Dirty tree at base 3a605a0; concurrent backend/browser/container/backup work. Changes continued in unrelated UI, sessions and tests during the run; registry/money/worker/schema held stable. No controlled throughput comparison.",
+  "hardware_observed_after_run": {
+    "cpu": "Apple M5",
+    "memory_bytes": 17179869184
+  }
+}

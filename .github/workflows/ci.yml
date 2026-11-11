@@ -1,5 +1,8 @@
 name: Verify financial operations
 on: [push, pull_request]
+concurrency:
+  group: verify-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -19,6 +22,7 @@ jobs:
     env:
       DATABASE_URL: postgresql+psycopg://ledger:ci_only_password@localhost:5438/ledger
       DEMO_PASSWORD: CI-only-synthetic-password
+      PUBLIC_REVIEW_ENABLED: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -26,9 +30,12 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '24', cache: npm, cache-dependency-path: frontend/package-lock.json}
       - run: python -m venv .venv
+      - run: .venv/bin/python -m pip install --upgrade "pip>=26.2"
       - run: .venv/bin/pip install -e './backend[dev]'
       - run: npm --prefix frontend ci
       - run: make check
+      - run: .venv/bin/pip-audit
+      - run: npm --prefix frontend audit --audit-level=high
       - run: make test
       - run: make migrate
       - run: make seed
@@ -41,3 +48,4 @@ jobs:
           make dev-web > /tmp/web.log 2>&1 &
           for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/ready && curl -fsS http://127.0.0.1:5173/ && break; sleep 1; done
           make e2e
+          npm --prefix frontend run test:public

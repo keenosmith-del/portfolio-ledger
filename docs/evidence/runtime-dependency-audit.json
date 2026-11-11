@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "timestamp_utc": "2026-11-11T13:20:43.233719+00:00",
+  "candidate_sha": "65fdea6f4a9f0df01fa2cd65dd50706b32b91012",
+  "scope": "actual API runtime Python package versions; complete installed graph excluding unpublished project code; OS packages not scanned",
+  "auditor": "pip-audit 2.10.1",
+  "scanned_package_count": 33,
+  "runtime_pip_version": "26.3",
+  "known_vulnerability_count": 0,
+  "advisory_suppressions": [],
+  "method": "actual installed full package graph pinned to versions; pip-audit --disable-pip --no-deps",
+  "warning": "Scanner recommends distribution hashes; installed-version inventory is not a reproducible dependency lock."
+}

@@ -1,0 +1,62 @@
+# Standalone production contract: use -f compose.production.yaml (no local defaults).
+# Operator supplies verified TLS PostgreSQL, runtime roles and HTTPS ingress.
+x-runtime: &runtime
+  APP_ENV: production
+  COOKIE_SECURE: "true"
+  ALLOWED_ORIGINS: ${PRODUCTION_ORIGINS:?Explicit HTTPS origins JSON required}
+  ALLOWED_HOSTS: ${PRODUCTION_HOSTS:?Explicit trusted hosts JSON required}
+  TRUSTED_PROXY_IPS: ${PRODUCTION_PROXY_IPS:?Explicit proxy addresses JSON required}
+  PUBLIC_REVIEW_ENABLED: "true"
+  PUBLIC_DEMO_READ_ONLY: "true"
+  SEED_SYNTHETIC_DEMO: "false"
+  DEMO_PASSWORD: ""
+x-restricted: &restricted
+  read_only: true
+  tmpfs: ["/tmp"]
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: [ALL]
+services:
+  release:
+    <<: *restricted
+    build: ./backend
+    environment:
+      APP_ENV: development
+      DATABASE_URL: ${MIGRATION_DATABASE_URL:?Private migration owner DSN required}
+      SEED_SYNTHETIC_DEMO: "false"
+      DEMO_PASSWORD: ""
+    command: alembic upgrade head
+    restart: "no"
+  api:
+    <<: *restricted
+    build: ./backend
+    environment:
+      <<: *runtime
+      DATABASE_URL: ${API_DATABASE_URL:?Verified TLS least-privilege API DSN required}
+    command: ["python", "-m", "app.operations.serve"]
+    expose: ["8000"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "from app.core.config import settings; import urllib.request; urllib.request.urlopen(urllib.request.Request('http://localhost:8000/ready', headers={'Host': settings.allowed_hosts[0]}))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  worker:
+    <<: *restricted
+    build: ./backend
+    environment:
+      <<: *runtime
+      DATABASE_URL: ${WORKER_DATABASE_URL:?Verified TLS least-privilege worker DSN required}
+    command: python -m app.workers.runner
+    restart: unless-stopped
+    stop_grace_period: 2m
+  web:
+    build: ./frontend
+    ports: ["127.0.0.1:8080:8080"]
+    volumes: ["./frontend/nginx.production.conf:/etc/nginx/conf.d/default.conf:ro"]
+    depends_on:
+      api: {condition: service_healthy}
+    read_only: true
+    tmpfs: ["/tmp", "/var/cache/nginx", "/var/run"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    restart: unless-stopped

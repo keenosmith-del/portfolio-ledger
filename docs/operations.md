@@ -2,7 +2,7 @@
 
 Use README quick start. Run API and worker as separate processes or `docker compose up --build -d`. Named volume `ledger_data` preserves PostgreSQL across `docker compose down`/up. Do not use `down -v` unless intentionally discarding this synthetic database. Re-running seed uses stable receipt keys and does not inflate ledger totals or reset existing passwords.
 
-Liveness `/health`; readiness `/ready` checks DB, applied schema revision and secure cookie configuration in production. Structured JSON request logs include correlation ID, method/path/status/duration, never request bodies/passwords. Worker emits job ID and duration. Audit events retain actor, operation, resource, correlation and state-change detail. The operations UI derives counts/timeline from database rows. Readiness is checked on demand, not represented as permanent green health.
+Liveness `/health`; readiness `/ready` checks DB and actual Alembic heads, plus non-owner runtime privileges in production; production configuration validates cookie/TLS/host/proxy requirements before startup. Structured JSON request logs include correlation ID, method/path/status/duration, never request bodies/passwords. Worker emits job ID and duration. Audit events retain actor, operation, resource, correlation and state-change detail. The operations UI derives counts/timeline from database rows. Readiness is checked on demand, not represented as permanent green health.
 
 ## Worker lifecycle
 
@@ -21,4 +21,4 @@ Per file: 8 MiB, 20,000 rows; bounded three-attempt processing; fixed-window mut
 
 The measured 10k baseline is ~100.59s initial and 80.81s replay. Do not infer an SLA from one workstation run. Next performance step is profile round trips, stage/bulk insert validated rows and prefetch source mappings, then repeat the exact isolated acceptance benchmark with invariant suite. Do not remove uniqueness/triggers to make a benchmark look faster.
 
-Back up PostgreSQL with tested provider snapshots/pg_dump in deployment; restore into isolated database and verify migrations before production adoption. This repository does not claim an executed backup/restore drill.
+Back up PostgreSQL with tested provider snapshots/pg_dump in deployment; restore into isolated database and verify migrations before production adoption. A real local pg_dump/restore drill is available in `scripts/backup_restore.py`, with sanitized evidence in `docs/evidence/backup-restore.json`: restored business tables match and immutability still rejects mutation. Hosted backups/restore are unverified.

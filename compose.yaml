@@ -12,16 +12,34 @@ services:
       interval: 3s
       timeout: 3s
       retries: 20
-  api:
+  release:
     build: ./backend
     environment: &app_env
       DATABASE_URL: postgresql+psycopg://ledger:${POSTGRES_PASSWORD:-ledger_local}@db:5432/ledger
       DEMO_PASSWORD: ${DEMO_PASSWORD:?Set DEMO_PASSWORD in .env}
       APP_ENV: development
-    ports: ["127.0.0.1:8000:8000"]
+      SEED_SYNTHETIC_DEMO: "true"
     depends_on:
       db: {condition: service_healthy}
-    command: sh -c 'alembic upgrade head && python -m app.seed && uvicorn app.main:app --host 0.0.0.0'
+    command: sh -c 'alembic upgrade head && python -m app.seed'
+    restart: "no"
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+  api:
+    build: ./backend
+    environment:
+      <<: *app_env
+      SEED_SYNTHETIC_DEMO: "false"
+      PUBLIC_REVIEW_ENABLED: ${PUBLIC_REVIEW_ENABLED:-false}
+      PUBLIC_DEMO_READ_ONLY: ${PUBLIC_DEMO_READ_ONLY:-false}
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on:
+      release: {condition: service_completed_successfully}
+    command: uvicorn app.main:app --host 0.0.0.0
+    read_only: true
+    tmpfs: ["/tmp"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready')"]
       interval: 10s
@@ -29,13 +47,24 @@ services:
       retries: 10
   worker:
     build: ./backend
-    environment: *app_env
+    environment:
+      <<: *app_env
+      SEED_SYNTHETIC_DEMO: "false"
     depends_on:
       api: {condition: service_healthy}
     command: python -m app.workers.runner
+    read_only: true
+    tmpfs: ["/tmp"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    stop_grace_period: 2m
   web:
     build: ./frontend
-    ports: ["127.0.0.1:5173:80"]
+    ports: ["127.0.0.1:5173:8080"]
     depends_on: [api]
+    read_only: true
+    tmpfs: ["/tmp", "/var/cache/nginx", "/var/run"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
 volumes:
   ledger_data:

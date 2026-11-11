@@ -9,7 +9,10 @@
     "preview": "vite preview --host 127.0.0.1",
     "test:e2e": "playwright test",
     "format": "prettier --write src tests *.ts *.json index.html",
-    "format:check": "prettier --check src tests *.ts *.json index.html"
+    "format:check": "prettier --check src tests *.ts *.json index.html",
+    "check:styles": "node check-styles.mjs",
+    "capture:ui": "node capture-ui.mjs",
+    "test:public": "playwright test --config playwright.public.config.ts"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
@@ -17,6 +20,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.51.0",
     "@types/node": "^26.6.6",
     "@types/react": "^19.0.0",

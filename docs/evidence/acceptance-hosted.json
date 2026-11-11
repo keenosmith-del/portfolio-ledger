@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "timestamp_utc": "2026-11-11T13:19:48.156840+00:00",
+  "python": "3.12.16",
+  "platform": "Linux x86_64",
+  "commit": "2a22123",
+  "working_tree": "clean",
+  "financial_events": 10000,
+  "artifact_bytes": 715499,
+  "receipts": [
+    {
+      "accepted": 10002,
+      "duplicates": 0,
+      "quarantined": 2
+    },
+    {
+      "accepted": 0,
+      "duplicates": 10002,
+      "quarantined": 2
+    }
+  ],
+  "first_import_seconds": 87.758,
+  "replay_seconds": 55.098,
+  "ledger_entries_after_replay": 10000,
+  "ledger_total_zar": "18750000.00",
+  "full_journey_seconds": 143.709,
+  "isolation": "temporary PostgreSQL schema; migrated from blank; removed on exit",
+  "candidate_head_sha": "65fdea6f4a9f0df01fa2cd65dd50706b32b91012",
+  "workflow_url": "https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43027530061",
+  "event": "pull_request",
+  "branch": "codex/portfolio-ledger-release-ui-v2"
+}

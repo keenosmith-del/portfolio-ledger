@@ -79,3 +79,93 @@ Executed full Compose down/up after isolated acceptance finished. Compared exact
 ## 2026-11-11 — Final verified local release
 
 Post-stop/start Chrome journey/mobile **2 passed in 6.9s**, including login using rotated generated demo credential. Final static/build checks pass; git whitespace check clean and tracked current-credential scan passes. Existing public GitHub repository metadata verified read-only, with no push/hosted Actions/public API deployment claim. Final docs include fresh-clone start/login process, synthetic non-affiliation, architecture/mappings/schema/decisions, security/tradeoffs/operations/deployment blockers, actual performance and recovery evidence, reviewer narration and truthful application description. Added root AGENTS.md to preserve the owner's continuous-documentation acceptance requirement for future contributors. Saving final evidence as a separate increment; implementation remains a local synthetic demonstration with enumerated public-hosting gaps.
+
+## 2026-11-11 12:26:34 UTC — Iteration 005 reconnaissance
+
+Starting SHA `3a605a0b130a9ece50b9308cef198573b85383b8`, branch `codex/portfolio-ledger-build`, 14 dirty tracked files (318 insertions/100 deletions). Preserved all pre-existing changes; created `codex/portfolio-ledger-release-ui-v2`. Read supplied iteration brief, AGENTS, README, domain rules, journal, security, deployment, validation and tradeoffs; inspected CI and migration history. Local origin/main comparison contains the same dirty files; no additional local hardening branch. Existing changes largely formatting plus validation/money corrections, not the requested registry/production profile.
+
+Objective: full neutral design system and real release boundaries, with actual local verification and no public writable deployment. Baseline `make check`: Ruff lint passed; formatter failed on 11 existing dirty files. Docker initially unavailable; top-level app launch failed kLSNoExecutableErr, nested Docker Desktop application launch succeeded. PostgreSQL and browser baseline pending. Git branch creation initially denied by filesystem policy; approved retry succeeded. No secrets printed.
+
+## 2026-11-11 12:34:20 UTC — Baseline and release regressions
+
+Approved local Docker startup succeeded. Initial unprivileged PostgreSQL run: 7 passed / 19 setup errors (connection access/infrastructure); approved rerun: 26 passed, one upstream warning, 13.36s, 85% coverage. Baseline Chrome: 2 passed in 9.6s. Captured 11 credential-free screenshots under docs/evidence/ui/before (all six views, ledger, evidence modal, login, tablet/mobile overview). First screenshot script invocation used the wrong working-directory prefix and failed; corrected invocation succeeded.
+
+New regression checkpoint before implementation: 5 failed in 1.39s. Arbitrary source upload actually returned 202; readiness helper absent; early 400 lacked security headers; production configuration accepted unsafe defaults; public reviewer configuration absent. Tests now drive the security increment. Error output can contain settings values; raw logs are excluded from Git and only aggregate results recorded here.
+
+Implementation in progress: full neutral token stylesheet, extracted Badge/Empty/Table/Pager/Panel; additive b003 registry with historical identities disabled pending explicit operator review; registry checks at upload, replay and processing; dynamic Alembic readiness; strict production config; bounded streamed request parser; explicit synthetic seed; dedicated scoped public reviewer; session/rate cleanup. No migration or final green claim yet.
+
+## 2026-11-11 12:40:07 UTC — Registry/security green and complete container rebuild
+
+First new security rerun: 4 passed / 1 failed (2.83s), early error response still bypassed header assignment after an overly narrow text edit. Corrected response flow; full suite then 31 passed in 18.86s. Removed unused frontend imports found by TypeScript; strict check/build/style guard now pass. Expanded registry and privilege suite: 35 passed, one warning, 56.94s (concurrent container build; no performance comparison claimed). Tests cover actual same-feed alias rejection without posting inflation, enabled independent source accounts, disabled-source replay, cross-portfolio registry, global public write lock, invalid synthetic grants, streamed oversize rejection, hostile Host and non-owner runtime-role denial of trigger disable/truncate/evidence updates/deletes/registry writes.
+
+Docker Compose rebuild succeeded; explicit release service migrated existing database to b003 and seeded only the explicit synthetic namespace. API healthy, worker/web running with non-root IDs and restricted capabilities/read-only filesystems. Public UI/functional/axe audit and isolated backup restore currently running. Current remote inspected read-only: main 21275fa; original build branch 3a605a0; PR #1 merged. No unpushed hardening branch found.
+
+## 2026-11-11 12:47:11 UTC — Visual review, accessibility, backup and acceptance
+
+Chrome expanded suite: 6 passed in 56.5s. Every operational view at 320/390/430/768/1024/1440, controls >=40px, table-region scrolling, search/empty, modal focus/Escape/restoration, session persistence and private read-only evidence/CSV verified. Axe WCAG A/AA/2.1 AA found no violations on login and six operational screens. Viewed actual before desktop overview/login and after login/overview/integrations/leases/evidence modal/reconciliation/billing/audit/tablet/mobile screenshots; neutral palette and rounded controls consistent. Found cramped metric-note spacing; added gap and softened uppercase metadata. Public reviewer browser check remains pending.
+
+Dependency scans: npm reports zero vulnerabilities; unsuppressed pip-audit reports no known vulnerabilities, excluding only unpublished local portfolio-ledger distribution (not on PyPI). No OS-image scan or future-security guarantee claimed.
+
+First isolated backup restore failed on existing default schema in the new target. Corrected restore flags restricted to disposable target. Repeat passed: 13 business table count/content hashes match, source unchanged, restored ledger trigger enforced, ledger ZAR 19,500.00. Private dump deleted; restore database removed. Evidence backup-restore.json.
+
+Full b003 isolated 10k acceptance passed at 12:45:16 UTC: 10,002 accepted / 2 quarantined; replay 10,002 duplicates / 2 quarantined / 0 accepted; 10,000 postings / ZAR 18,750,000.00. Initial 190.983s, replay 82.724s, full 275.891s. Dirty base 3a605a0, concurrent verification; slower than prior run, no causal throughput assertion. Saved sanitized acceptance-release-ui.json.
+
+Expanded production config, historical b002-to-b003 migration and separate runtime financial journey: 39 passed, one upstream warning, 34.13s, 85% coverage. Full journey authenticates/API imports through API role, worker posts through worker role, reconciliation/preview/CSV pass and production readiness accepts runtime role while rejecting owner. Added bounded session counts/expiry and verified cleanup. Standalone production Compose is configuration preparation; hosted infrastructure unverified.
+
+## 2026-11-11 12:53:22 UTC — Final boundary checks and public browser correction
+
+40 PostgreSQL tests passed in 18.34s, 85% coverage, one upstream warning; added continuous synthetic-scope checks after a public session is created. Identity response now exposes effective read-only state so global public mode is reflected in controls. Static type checker found a bool/SQL expression union in scope filtering; replaced Python true with SQL true(), check passed. Alembic check: no new upgrade operations detected. Actual runtime IDs: API/worker UID 10001, Nginx UID 101. Nginx local syntax test passed. Production Compose rejects missing required variables and renders with synthetic TLS/host/proxy placeholders without provisioning. Benchmark hardware read afterward: Apple M5, 16 GiB RAM; first restricted hardware query denied, approved query succeeded.
+
+Public Chrome case first timed out because Escape fired before asynchronous report opening. Second run reached direct business mutation-denial checks and CSV but helper incorrectly expected Close to retain focus after Download; corrected helper to focus Close then Escape and assert disappearance. These are test synchronization/expectation defects, not relaxed business assertions. Business-ID/total comparison remained unchanged through attempts (9 ledger, 3 leases, 8 previews/15 lines, 48 audits, 119 exceptions, 12 jobs; ZAR 19,500.00). Final public rerun pending.
+
+## 2026-11-11 12:54:28 UTC — Public reviewer accepted
+
+Third public-test rerun reached Audit and found a test-only heading typo (omitted ampersand in existing Execution & audit timeline). Corrected locator without changing product copy/assertions. Final public Chrome case: 1 passed in 4.2s (2.5s case). Password-free reviewer inspected reports, ledger source evidence, exceptions, preview CSV and audit; direct upload/replay/reconciliation/review/preview calls all 403. Business-ID/ledger comparison unchanged; sanitized public-review.json and credential-free public-review-audit screenshot saved. Production Nginx configuration tested inside actual non-root image: syntax successful (entrypoint read-only-config notice expected). Final candidate credential scan passed. Saving implementation increment before restart/final evidence increment.
+
+## 2026-11-11 12:58:27 UTC — Restart accepted; final ownership regression
+
+Implementation increment committed as 7ed81c6. Complete Compose down/up (no volume removal) passed exact-ID/ledger comparison: 9 postings, 3 leases, 8 previews/15 lines, 48 audits, 119 exceptions, 12 jobs; ZAR 19,500.00. Sanitized persistence-release.json saved.
+
+Final privilege review identified schema ownership as a second DDL bypass path despite non-ownership of individual tables. Added reproducer: 1 failed in 0.50s (expected owner-rejection exception did not occur). Role setup and production readiness now check database/schema ownership and membership as well as table ownership/role flags. Existing separate-role financial journey now also asserts readiness becomes 503 if runtime role is temporarily assigned schema ownership, then restores ownership in test cleanup. Configuration repr/errors now redact secret fields and production rejects socket/unnamed DB identities. Full suite/static rerun pending. No finance/schema/worker logic changed in this correction.
+
+## 2026-11-11 12:59:20 UTC — Ownership correction green
+
+Full PostgreSQL suite: 41 passed / 35.88s / 85% / one upstream warning. Schema-owner reproducer now passes, ordinary separate-runtime financial journey stays green, production readiness rejects schema ownership. All static/type/build/style checks pass. No finance logic, source identity, worker processing or Alembic schema changed after the accepted 10k run; no benchmark rerun asserted. Final images rebuilding before browser/capture verification.
+
+## 2026-11-11 13:02:58 UTC — Final visual/accessibility correction
+
+Public case rerun against final rebuilt backend: 1 passed in 5.5s; stricter screenshot waits now require the real audit rows loaded and scroll to page top. Manual review had caught an earlier public capture before audit data finished loading; replacement is required, not claimed accepted.
+
+Private final browser rerun: 5 passed / 1 failed, 19.0s. Axe caught Integrations navigation at intermediate transition colors (contrast 1.12/2.23 while text/background swapped). Removed only navigation color transitions so selected background/text switch together; unchanged axe assertions and full journey rerunning. This is a genuine transient style defect, not a reason to disable contrast checking or introduce test sleeps.
+
+## 2026-11-11 13:07:13 UTC — Final local acceptance and reviewed captures
+
+D023 corrected: full private Chrome suite 6 passed in 19.2s; unchanged axe contrast checks pass login and all six operational views, responsive 36 combinations and all finance assertions retained. Final public Chrome 1 passed in 4.2s; exact business-ID/ledger comparison unchanged (9 postings, 3 leases, 10 previews/19 lines, 58 audits, 173 exceptions, 14 jobs, ZAR 19,500.00). Private runs legitimately added review/import/preview history between public/restart measurement boundaries; no data reset. Returned stack to private mode.
+
+Final screenshot helper initially captured images but failed logout because standalone browser request context lacked a base URL. Added explicit loopback base URL and finally-close; complete rerun exited 0 (Captured after synthetic UI screenshots), including session revocation. Refreshed all six screens plus login, ledger, source modal, tablet/mobile. Actually viewed final overview/mobile/tablet/login/integrations/leases/modal/reconciliation/billing and public Audit; all neutral/rounded/legible, no clipped document or credentials. Public Audit now contains actual loaded rows and sidebar starts at top; screenshots accepted.
+
+Final static/type/build/style and credential/artifact checks passed at this checkpoint (latest final command completion recorded before commit). No new backend business/schema/worker change after accepted 10k run. Local backup/restore and full named-volume restart have genuine evidence. Hosted candidate CI, HTTPS deployment, hosted TLS DB/backup/alerting remain unverified; public release NO-GO. Implementation and local acceptance complete; branch publication remains conditional on owner authorization per supplied phase 5.
+
+## 2026-11-11 13:11:01 UTC — Browser-facing readiness corrected and final candidate saved
+
+Final endpoint audit found real `/ready` through Nginx returned 400 despite direct API health: that location omitted browser Host, so strict TrustedHost rejected internal upstream hostname. Kept host enforcement and forwarded original Host/protocol in both local/production readiness locations. Added actual readiness-dialog assertion to original journey and same-origin readiness assertion to public test. Production Nginx syntax passes in actual non-root image; curl via frontend now 200 with b003. Private full suite **6 passed / 33.1s**, public **1 passed / 9.9s**, including all existing financial/axe assertions. Public exact business-ID/ledger comparison passed again; private reviewer actions between checkpoints account for 11 previews/21 lines, 63 audits, 203 exceptions and 15 jobs (ledger still 9 / ZAR 19,500.00).
+
+Returned private mode. Immediate curl during API recreation briefly returned 502 before health startup; subsequent explicit readiness check returned ready/b003 and auth options public_review_enabled=false. No steady-state failure or uptime claim inferred. Final static/type/build/style and credential/artifact scans passed; git diff whitespace clean. All current implementation/evidence files are being saved as a second meaningful increment. No push, new PR, candidate hosted CI or cloud deployment performed; those remain conditional release gates.
+
+## 2026-11-11 13:15:31 UTC — Authorized publication and real hosted audit failure
+
+Owner explicitly authorized pushing and opening draft PR. Pushed 1eef601 on release branch. GitHub connector PR creation returned 403 (integration permission); authenticated gh fallback successfully opened draft PR #2: https://github.com/keenosmith-del/portfolio-ledger/pull/2. Initial hosted push run 43027005906 actually failed at pip-audit: runner venv bundled pip 25.0.1, scanner reported 12 findings in that single tooling package (including duplicated advisory aliases). No backend/browser hosted success inferred. PR-triggered same-SHA run initially in progress.
+
+Correction: upgrade pip>=26.2 before dependency installation in CI/local setup/container build, retaining unsuppressed audit. Add per-branch workflow concurrency cancellation so push/PR events do not wastefully run duplicate full suites. This is tooling/release configuration, no finance/domain/schema behavior change. Hosted rerun and runtime image audit pending.
+
+## 2026-11-11 13:20:43 UTC — Hosted tooling correction verified; runtime audit
+
+Committed/pushed 65fdea6 with pip upgrade and branch concurrency. Corrected PR run https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43027530061 has actually passed static/type/build, unsuppressed Python/npm audits, PostgreSQL tests, migration and seed; 10k acceptance running at this entry. Duplicate push run cancelled by explicit concurrency, not reported as a failed financial check.
+
+Rebuilt local release/API/worker images and reached healthy startup. Actual runtime pip is 26.3 (development venv pip 26.2.1). Audited exact installed runtime Python package inventory excluding unpublished project code: no known vulnerabilities in 33 packages, no advisory suppressions. Scanner recommends distribution hashes; OS packages remain unscanned. Saved runtime-dependency-audit.json. First evidence metadata lookup used system Python lacking pip-audit metadata; corrected to project venv. No dependency-lock/reproducible-build claim.
+
+## 2026-11-11 13:26:55 UTC — Hosted code candidate accepted
+
+Inspected successful PR run https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43027530061 for head 65fdea6f4a9f0df01fa2cd65dd50706b32b91012, tested merge ref 2a22123. Actual results: 41 backend tests / 22.74s / one warning; private Chrome 6 / 24.4s; public Chrome 1 / 3.4s. Static/type/build/style, unsuppressed Python/npm audits, migrations, seed and 10k acceptance passed. Hosted Linux x86_64 / Python 3.12.16 clean-checkout benchmark: import 87.758s, replay 55.098s, full 143.709s; exact 10,002 accepted then 10,002 duplicates, two quarantines each, 10,000 postings / ZAR 18,750,000.00. Different platform from local; no controlled speedup claim.
+
+Sanitized hosted-ci.json, acceptance-hosted.json and runtime-dependency-audit.json saved in evidence commit 1554cdc. A quoting error interrupted the accompanying narrative update; corrected here, no application code affected. Owner authorized publication and draft PR #2. This is evidence/documentation only after the accepted code candidate. Whitespace and private-credential scans passed; latest PR Actions remains the live merge gate. Public hosting still NO-GO pending operator HTTPS/TLS DB/secrets/hosted restore/alerts. Owner's next action is PR/visual review.

@@ -20,6 +20,7 @@ Core boundaries: `integrations` translates fictional provider formats; `domain` 
 ## Relational summary
 
 - users, sessions, portfolio_access: identity and explicit grants.
+- integration_sources: operator-owned portfolio/provider/upstream identities; enabled source selection and composite receipt FK.
 - portfolios, units, tenants, leases: fictional scoped business identities.
 - lease_versions: immutable source-backed normalized terms, revisioned per lease.
 - pricing_versions: immutable effective-dated service-fee settings.
@@ -31,11 +32,11 @@ Core boundaries: `integrations` translates fictional provider formats; `domain` 
 - audit_events: append-only business actions with actor/correlation/details.
 - rate_windows: database-backed fixed-window request budgets.
 
-UUIDs are stored as bounded strings; composite foreign keys enforce portfolio ownership for source/lease/ledger/preview lineage. Source identity is `(portfolio, source_key, external_id)`; keep source keys stable. One configured adapter per portfolio is intentionally embedded in the portfolio model. No speculative integration-settings service or external provider connection exists.
+UUIDs are stored as bounded strings; composite foreign keys enforce portfolio ownership for source/lease/ledger/preview lineage. Source identity is `(portfolio, source_key, external_id)`; source keys must come from the enabled registry. Its unique upstream identity prevents aliases for one authorized account. One adapter per portfolio remains embedded in the portfolio model; no real external provider connection exists.
 
 ## Schema evolution
 
-Alembic revision `aacf7692e44e` creates the initial schema; `b001` adds database immutability triggers; `b002` hardens pricing ownership, event uniqueness and state/revision checks. Future changes add revisions; never modify applied migration history. Tests create unique temporary schemas and run the actual migration chain. No application `create_all()` exists. Down migrations are for disposable test/development databases, not financial-data erasure. Run migrations as a release step before new workers/API start.
+Alembic revision `aacf7692e44e` creates the initial schema; `b001` adds database immutability triggers; `b002` hardens pricing ownership, event uniqueness and state/revision checks; `b003` registers historical source identities without rewriting financial evidence. Future changes add revisions; never modify applied migration history. Tests create unique temporary schemas and run the actual migration chain. No application `create_all()` exists. Down migrations are for disposable test/development databases, not financial-data erasure. Run migrations as a release step before new workers/API start.
 
 ## Transaction and snapshot boundaries
 

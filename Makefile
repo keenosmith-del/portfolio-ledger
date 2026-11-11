@@ -1,6 +1,7 @@
 .PHONY: setup up down dev-api dev-web worker migrate seed check test acceptance e2e fixtures
 setup:
 	python3.12 -m venv .venv
+	.venv/bin/python -m pip install --upgrade "pip>=26.2"
 	.venv/bin/pip install -e './backend[dev]'
 	npm --prefix frontend ci
 up:
@@ -11,7 +12,7 @@ down:
 migrate:
 	cd backend && ../.venv/bin/alembic upgrade head
 seed:
-	.venv/bin/python -m app.seed
+	SEED_SYNTHETIC_DEMO=true .venv/bin/python -m app.seed
 dev-api:
 	.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
 worker:
@@ -24,6 +25,7 @@ check:
 	.venv/bin/mypy backend/app
 	npm --prefix frontend run format:check
 	npm --prefix frontend run build
+	npm --prefix frontend run check:styles
 test:
 	cd backend && ../.venv/bin/pytest -q --cov=app --cov-report=term-missing
 acceptance:

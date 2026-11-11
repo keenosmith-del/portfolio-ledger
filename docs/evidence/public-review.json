@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "counts": {
+    "ledger_entries": 9,
+    "leases": 3,
+    "billing_previews": 11,
+    "billing_preview_lines": 21,
+    "audit_events": 63,
+    "exceptions": 203,
+    "import_jobs": 15
+  },
+  "ledger_total_zar": "19500.00",
+  "timestamp_recorded_utc": "2026-11-11T13:11:01.729491+00:00",
+  "scope": "final loopback public review; business IDs/ledger compared before/after",
+  "browser_cases": 1,
+  "browser_seconds": 9.9,
+  "readiness_proxy_status": 200,
+  "direct_write_denials": [
+    "upload",
+    "replay",
+    "reconciliation",
+    "exception review",
+    "preview creation"
+  ]
+}

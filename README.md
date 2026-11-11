@@ -17,6 +17,16 @@ A working property-finance operations demonstration: normalize incompatible land
 
 Local verification includes PostgreSQL invariant/API tests, real Chrome journey/mobile tests and an isolated **10,000-event import plus replay**. Measured baseline: 100.59s initial, 80.81s replay; 10,000 ledger postings retained after replay. See [actual results and failures](docs/validation.md), not just a feature list. No public deployment is claimed.
 
+## Release/UI candidate
+
+Current branch refreshes every screen with a neutral white design system and adds a canonical source registry, password-free read-only reviewer, fail-closed production configuration, separate runtime grants and a real local backup/restore drill. See [current validation](docs/validation.md), [before/after UI evidence](docs/iterations/005-design-system-and-navigation.md) and [release gates](docs/deployment.md). The original local evidence above remains historical; public deployment is **NO-GO** until hosted gates are verified.
+
+Latest local candidate: **41 PostgreSQL tests, seven Chrome cases**, static/type/build/style checks, local restore and full restart pass. All six views plus login have actual reviewed before/after screenshots.
+
+Corrected code candidate passed full [hosted Actions](https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43027530061), including both browser suites and 10k acceptance. [Draft PR #2](https://github.com/keenosmith-del/portfolio-ledger/pull/2) is open; latest checks and visual review remain required before merge.
+
+Uploads now select enabled configured source identities. Additive migration b003 retains historical keys disabled until reviewed; explicit synthetic seed enables the two known fictional demo sources. A new source key cannot create another ledger namespace through the API.
+
 ## Quick start — Docker
 
 Requires running Docker Desktop / Docker Compose. From this repository root:
@@ -38,7 +48,7 @@ Open [local application](http://localhost:5173). API [Swagger](http://localhost:
 
 Password: the private **DEMO_PASSWORD value in your local `.env`**. Open that file locally in your editor. No shared public password is shipped. Existing user passwords are not rotated by repeat seeding.
 
-Startup migrates the database and seeds deterministic fixtures. Select **November 2026 (`2026-11`)** for the anchored reviewer scenarios. Atlas includes unmatched/malformed rows; Meridian includes correction and stale revision. `recovery.csv` records a real injected failed attempt and successful recovery (attempt two) without additional postings.
+A separate one-off release service migrates the database and explicitly seeds deterministic synthetic fixtures. Ordinary API boot never migrates. Select **November 2026 (`2026-11`)** for the anchored reviewer scenarios. Atlas includes unmatched/malformed rows; Meridian includes correction and stale revision. `recovery.csv` records a real injected failed attempt and successful recovery (attempt two) without additional postings.
 
 ```sh
 docker compose ps
@@ -113,4 +123,4 @@ Longer [60–90-second walkthrough](docs/reviewer-walkthrough.md) and [applicati
 - [Validation measurements](docs/validation.md), [verification commands](docs/verification.md), [operations/recovery](docs/operations.md), [security/threat model](docs/security.md).
 - [Deployment preparation/blockers](docs/deployment.md), [tradeoffs/priorities](docs/tradeoffs.md), [general property-engineering relevance](docs/leasehub-relevance.md).
 
-GitHub Actions configuration is included; hosted CI success is not claimed unless a run is actually inspected. Public writable reviewer isolation/reset, cloud deployment, telemetry, scheduled imports, S3 and claims tracking are out of scope for this verified local release. See security notes before any public hosting.
+GitHub Actions configuration is included; hosted CI success is not claimed unless a run is actually inspected. Public writable reviewer isolation/reset, cloud deployment, telemetry, scheduled imports, S3 and claims tracking remain out of scope. Optional public review uses read-only sessions and existing evidence/CSV; see deployment instructions for the local test workflow. See security notes before any public hosting.

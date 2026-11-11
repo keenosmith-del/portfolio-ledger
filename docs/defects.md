@@ -30,3 +30,39 @@ Application defects will be appended with the failing test/command and passing r
 | D013 | Final direct-SQL boundary regressions both failed: preview could reference another portfolio's pricing and same event/revision could be inserted under different financial kinds | Add composite pricing ownership FK and partial unique non-reversal event/revision index through new Alembic revision | Red: 2 failed in 0.74s; fix/rerun pending |
 
 | D013 fixed | Scope/identity enforced only by service for two paths | Alembic b002 adds composite pricing FK and partial event/revision uniqueness, plus state/revision checks | 26 passed, 85% coverage, 9.23s; both new direct-DB tests now pass |
+
+## D014–D018 — Iteration 005 release regression checkpoint
+
+Five new regressions failed before implementation (5 failed, 1.39s): arbitrary source accepted (202), dynamic migration-head helper missing, early errors lacked security headers, production accepted local defaults, and no public-review route/configuration. Additive b003 registry, dynamic head checks, uniform response headers, strict production settings and scoped read-only reviewer close these cases (31 tests green before expansion; 35 green after expansion). Early header fix required a second correction, captured as 4 pass/1 fail first. No historical migration rewritten.
+
+## D019 — Verification infrastructure and static checks
+
+Docker initially stopped and top-level launcher missing; nested Docker Desktop launch and approved local access resolved setup errors. Baseline formatting failed in 11 inherited dirty files; formatter corrected whitespace preserving semantic edits. First screenshot command used the wrong directory prefix and failed; corrected command captured actual before evidence. TypeScript detected two imports made unused by component extraction; removed, strict build passed. No app behavior assertions weakened.
+
+## D020 — Isolated restore default-schema conflict
+
+First pg_restore into a new disposable database exited 1 because its default public schema already existed. Added clean/if-exists only for the newly created restore target; never applied it to the source. Repeat passed: 13 business tables equal by count/content hash, ZAR 19,500.00 ledger, restored evidence trigger rejects updates, source unchanged. Private dump removed and disposable target dropped in finally.
+
+## D021 — Public-browser dialog synchronization
+
+First public case timed out navigating behind an asynchronously opened import modal: Escape had fired before open. Second rerun reached evidence/CSV and all direct-write denial assertions but incorrectly expected Close to remain focused after clicking Download. Helper now waits for dialog, focuses Close, sends Escape and asserts disappearance. Original finance assertions retained; independent design test still checks automatic focus/restoration. Public business-record comparison remained unchanged. Final public rerun recorded in journal.
+
+## D022 — Runtime schema ownership overlooked by privilege guard
+
+Final review found role setup/readiness checked table ownership and role flags but not schema/database ownership. A schema owner can drop its schema even without owning individual evidence tables. New actual reproducer failed (1 failed / 0.50s: missing ValueError). Added explicit database/schema membership/ownership rejection and a readiness probe that temporarily assigns isolated schema ownership to runtime role, expects 503, then restores it. Full green verification recorded in journal.
+
+## D023 — Intermediate navigation transition fails contrast
+
+Faster final Chrome run produced 5 passes/1 failure (19.0s): unchanged axe audit observed selected/unselected nav mid-transition with contrast 1.12/2.23. Removed nav transitions so background/text change atomically. The complete automated audit remains enabled; final rerun recorded in journal. Manual screenshot QA also required waiting for actual Audit rows and returning scroll to top before replacing the public-review image.
+
+## D024 — Standalone screenshot session cleanup URL
+
+After successfully writing screenshots, capture helper failed its new logout request with Invalid URL because standalone browser context had no base URL. Added explicit loopback base URL and guaranteed browser close in finally. Complete rerun exited 0 and revoked its session. This was capture tooling, not product authentication or financial persistence.
+
+## D025 — Readiness proxy omitted Host under strict trusted-host enforcement
+
+Actual frontend `/ready` returned 400 while direct API was healthy. Nginx forwarded its internal upstream Host only on this location. Both local and production configs now forward the original browser Host/protocol, retaining strict trusted-host policy. Original Chrome journey now verifies the real readiness dialog; public case asserts same-origin readiness HTTP 200. Corrected route returns ready/b003; final private/public suites pass (33.1s / 9.9s).
+
+## D026 — Hosted bootstrap pip fails unsuppressed audit
+
+First actual candidate Actions run [43027005906](https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43027005906) failed at pip-audit: pip 25.0.1 bundled by runner venv, 12 reported findings in that single package (some advisory aliases duplicated). CI/local bootstrap and runtime image now explicitly upgrade pip>=26.2 before installation. Scanner remains enabled with no advisory suppressions. Actual hosted rerun outcomes recorded in journal/validation.

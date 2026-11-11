@@ -50,7 +50,12 @@ def lease_versions(
 
 
 def reconcile(
-    db: Session, portfolio: str, month: str, cutoff: datetime, actor: str, correlation: str
+    db: Session,
+    portfolio: str,
+    month: str,
+    cutoff: datetime,
+    actor: str,
+    correlation: str,
 ) -> Reconciliation:
     first, end = month_bounds(month)
     lock(db, "finance:" + portfolio)
@@ -94,7 +99,8 @@ def reconcile(
         charges = Decimal("0.00")
         monthly: list[str] = []
         balance = sum(
-            (entry.amount for entry in posted if entry.effective_date < end), Decimal("0.00")
+            (entry.amount for entry in posted if entry.effective_date < end),
+            Decimal("0.00"),
         )
         for entry in posted:
             if first <= entry.effective_date < end:
@@ -170,7 +176,12 @@ def reconcile(
 
 
 def preview(
-    db: Session, portfolio: str, month: str, cutoff: datetime, actor: str, correlation: str
+    db: Session,
+    portfolio: str,
+    month: str,
+    cutoff: datetime,
+    actor: str,
+    correlation: str,
 ) -> Preview:
     first, _ = month_bounds(month)
     lock(db, "finance:" + portfolio)
@@ -200,7 +211,8 @@ def preview(
     records = list(
         db.scalars(
             select(ExceptionRecord).where(
-                ExceptionRecord.portfolio_id == portfolio, ExceptionRecord.created_at <= cutoff
+                ExceptionRecord.portfolio_id == portfolio,
+                ExceptionRecord.created_at <= cutoff,
             )
         )
     )
@@ -248,7 +260,7 @@ def preview(
                 lease_id=lease.id,
                 external_id=lease.external_id,
                 eligible=included,
-                reason="active_on_month_start" if included else "outside_eligibility_boundary",
+                reason=("active_on_month_start" if included else "outside_eligibility_boundary"),
                 amount=amount,
             )
         )

@@ -4,11 +4,11 @@ from datetime import timedelta
 
 from argon2 import PasswordHasher
 from fastapi import Depends, HTTPException, Request
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.db.models import Access, AuthSession, RateWindow, User, now
+from app.db.models import Access, AuthSession, Portfolio, RateWindow, User, now
 from app.db.session import get_db
 from app.services.common import lock
 
@@ -25,6 +25,10 @@ def rate_limit(db: Session, key: str, maximum: int, seconds: int = 60) -> None:
     from app.db.session import SessionLocal
 
     with SessionLocal.begin() as counter_db:
+        counter_db.execute(
+            delete(RateWindow).where(RateWindow.started_at < now() - timedelta(days=1))
+        )
+        counter_db.execute(delete(AuthSession).where(AuthSession.expires_at < now()))
         lock(counter_db, "rate:" + key)
         window = counter_db.get(RateWindow, key)
         if window is None:
@@ -55,7 +59,11 @@ def authenticate(request: Request, db: Session = Depends(get_db, scope="function
     if request.method not in {"GET", "HEAD", "OPTIONS"}:
         origin = request.headers.get("origin")
         same_origin = str(request.base_url).rstrip("/")
-        if origin and origin not in [*settings.allowed_origins, same_origin]:
+        if (
+            origin
+            and origin not in settings.allowed_origins
+            and not (settings.app_env != "production" and origin == same_origin)
+        ):
             raise HTTPException(403, "origin_not_allowed")
         if not secrets.compare_digest(request.headers.get("x-csrf-token", ""), session.csrf):
             raise HTTPException(403, "csrf_token_required")
@@ -67,11 +75,15 @@ def authorized(
     user: User = Depends(authenticate, scope="function"),
     db: Session = Depends(get_db, scope="function"),
 ) -> User:
+    if user.email == "public-review@portfolioledger.test":
+        portfolio = db.get(Portfolio, portfolio_id)
+        if portfolio is None or not portfolio.synthetic_demo:
+            raise HTTPException(404, "portfolio_not_found")
     if db.get(Access, (user.id, portfolio_id)) is None:
         raise HTTPException(404, "portfolio_not_found")
     return user
 
 
 def writable(user: User) -> None:
-    if user.role == "reviewer":
+    if settings.public_demo_read_only or user.role == "reviewer":
         raise HTTPException(403, "read_only_role")
