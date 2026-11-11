@@ -1,4 +1,6 @@
-# Iteration 001 — Transactional foundation (in progress)
+# Iteration 001 — Transactional foundation
+
+Current status: accepted for infrastructure scope; chronological pending entries below are retained with their later verification updates.
 
 Starting state and objective: empty initialized repository; provide real database schema and typed infrastructure supporting safe financial ingestion.
 

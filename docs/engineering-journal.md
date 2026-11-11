@@ -63,3 +63,19 @@ Added direct-DB tests beyond the already passing API authorization/source servic
 ## 2026-11-11 — Database hardening green and release checkpoint
 
 Added b002 as a new migration, enforcing pricing portfolio ownership and type-independent non-reversal event identity. Both failing direct-DB tests now pass; complete suite **26 passed / one upstream warning in 9.23s**, 85% coverage. Strict mypy passes. Added durable recovery fixture to seed (real injected rollback then second attempt), CI and operational documentation. Container runtime verification next; no cloud resources created. Removed accidentally tracked tsconfig.tsbuildinfo and ignored generated build-state files. No claimed bulk-performance improvement; repeat acceptance planned because schema invariants changed.
+
+## 2026-11-11 — Full container runtime accepted, persistence check pending
+
+Stopped only the three development processes created for this task and replaced them with container API/worker/Nginx. Compose health checks passed. Existing populated DB upgraded to b002; Alembic metadata comparison found no new operations. Recovery.csv shows real rolled-back first attempt then second-attempt completion with 7 duplicates and no new ledger effects. Chrome reviewer journey/mobile through built Nginx frontend **2 passed in 7.5s**. `make check` passes every static/build stage. Waiting for repeated 10k acceptance before intentionally cycling the DB/container stack; interrupting its active transaction would invalidate benchmark evidence.
+
+## 2026-11-11 07:36:39 UTC — Hardened acceptance repeat passed
+
+Repeated isolated journey/10k/replay on committed backend/schema d741c76, with documentation dirty state disclosed in machine output. Same exact counts and total: 10,002 accepted rows then 10,002 duplicates, two quarantines each, 10,000 postings and ZAR 18,750,000.00. Initial 100.555s, replay 63.949s, full 165.238s. Compared with 100.590s/80.810s initial baseline; no controlled optimization was performed, so recorded as repeat variability rather than causal performance improvement. Saved sanitized JSON. Captured authenticated synthetic desktop/mobile overview evidence; local trace artifacts remain untracked. Rotating generated demo password and revoking debug sessions before final persistence check; no password value is part of documentation or commits.
+
+## 2026-11-11 — Named-volume persistence proved
+
+Executed full Compose down/up after isolated acceptance finished. Compared exact business-record IDs and ledger total to captured pre-stop state: passed. Counts: 9 ledger, 3 leases, 4 previews/8 lines, 31 audit, 52 exception, 9 jobs; total ZAR 19,500.00. Captured sanitized comparison JSON and reusable read-only persistence smoke script. Public auth/schema readiness healthy; final browser run verifies the rotated generated local credential and post-restart operation. Repeated reviewer actions account for accumulated exception/job/preview counts; no reset or invented demo metric is used.
+
+## 2026-11-11 — Final verified local release
+
+Post-stop/start Chrome journey/mobile **2 passed in 6.9s**, including login using rotated generated demo credential. Final static/build checks pass; git whitespace check clean and tracked current-credential scan passes. Existing public GitHub repository metadata verified read-only, with no push/hosted Actions/public API deployment claim. Final docs include fresh-clone start/login process, synthetic non-affiliation, architecture/mappings/schema/decisions, security/tradeoffs/operations/deployment blockers, actual performance and recovery evidence, reviewer narration and truthful application description. Added root AGENTS.md to preserve the owner's continuous-documentation acceptance requirement for future contributors. Saving final evidence as a separate increment; implementation remains a local synthetic demonstration with enumerated public-hosting gaps.

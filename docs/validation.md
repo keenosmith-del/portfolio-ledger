@@ -43,3 +43,21 @@ Full HTTP journey, both adapters, evidence review, duplicate preview and CSV exp
 ## Final schema boundary verification
 
 Added two direct-SQL tests: cross-portfolio pricing reference and duplicate event/revision under a different kind. Initial targeted result **2 failed in 0.74s** (both missing IntegrityError). New migration b002 enforces both below service layer. Full `pytest -q --cov=app --cov-report=term-missing`: **26 passed, one upstream warning in 9.23s**, **85% coverage**. Strict mypy passes (15 files). Actual failed-to-passing reason and migration documented in ADR-004.
+
+## Complete container stack and final static checks
+
+`docker compose up --build -d`: built and launched all services; API and PostgreSQL reported healthy, worker/web running. Existing populated database upgraded to **b002**. `cd backend && ../.venv/bin/alembic check`: **No new upgrade operations detected** (exit 0). Recovery seed persisted **attempts 2**, accepted 0, duplicate 7, quarantined 2. Demo ledger before final container browser run: **9 entries, ZAR 19,500.00**; preview count 3 at that observation (later user/browser actions may add previews).
+
+`make check`: Ruff lint/format pass, 25 files formatted; strict mypy success 15 app files; frontend Prettier passes; strict TypeScript/Vite build passes (JS 266.11 kB / gzip 81.08 kB; CSS 20.56 kB / gzip 5.21 kB; Vite 1.77s). `make e2e` against built Nginx frontend + container API/worker: **2 passed in 7.5s**. Local browser artifact captures logged-in synthetic views only; credential-bearing traces remain ignored.
+
+## Hardened-schema 10k acceptance repeat
+
+Repeated `.venv/bin/python scripts/acceptance.py` after b002, base commit **d741c76**, docs working tree dirty (reported by script). Completed **2026-11-11 07:36:39 UTC**; [machine output](evidence/acceptance-hardened.json). **Passed** full HTTP journey and 10k replay invariants. Exact same 715,499-byte deterministic fixture and receipts/totals as baseline. Initial import **100.555s**, replay **63.949s**, full acceptance **165.238s**. Worker-only times 100,394ms and 63,775ms. Final: **10,000 financial ledger entries / ZAR 18,750,000.00**, no inflation. This is a second observation with a hardened schema and concurrent local container work; no controlled performance optimization or causal speedup is claimed. Temporary schema cleaned on exit.
+
+## Full stop/start persistence verification
+
+After the hardened acceptance schema was cleaned up, saved IDs for ledger, leases, previews/lines, audit, exceptions and jobs plus ledger total. Rotated generated local demo credential and revoked debug sessions (secret never committed). Executed **`docker compose down` then `docker compose up -d`** without removing named volume. API/DB healthy after restart. Command `.venv/bin/python scripts/persistence_smoke.py verify /tmp/portfolioledger-before-restart.json`: **passed** exact pre/post ID and total comparison. Counts at the comparison boundary: 9 ledger, 3 leases, 4 previews, 8 preview lines, 31 audits, 52 exceptions, 9 import jobs; ledger total **ZAR 19,500.00**. These are accumulated synthetic reviewer state, not benchmark schema counts. [Sanitized result](evidence/persistence-restart.json). Browser actions after comparison legitimately add review/history rows.
+
+## Final local audit
+
+Post-full-restart `make e2e`: **2 passed in 6.9s** (rotated credential login, reviewer journey, mobile). Final `make check`: Ruff lint and 26-file formatting pass; strict mypy 15 app files pass; frontend Prettier/strict TypeScript/build pass. `git diff --check` clean. Current generated credential scan over tracked content passed; `.env` is not tracked. Existing GitHub URL verified read-only with `gh repo view`; public repository default branch main. No push or hosted Actions run executed, no public frontend/API deployed, no paid cloud resource provisioned. These limits are deliberate and documented, not hidden verification successes.

@@ -35,7 +35,7 @@ UUIDs are stored as bounded strings; composite foreign keys enforce portfolio ow
 
 ## Schema evolution
 
-Alembic revision `aacf7692e44e` creates the initial schema; `b001` adds database immutability triggers. Future changes add revisions; never modify applied migration history. Tests create unique temporary schemas and run the actual migration chain. No application `create_all()` exists. Down migrations are for disposable test/development databases, not financial-data erasure. Run migrations as a release step before new workers/API start.
+Alembic revision `aacf7692e44e` creates the initial schema; `b001` adds database immutability triggers; `b002` hardens pricing ownership, event uniqueness and state/revision checks. Future changes add revisions; never modify applied migration history. Tests create unique temporary schemas and run the actual migration chain. No application `create_all()` exists. Down migrations are for disposable test/development databases, not financial-data erasure. Run migrations as a release step before new workers/API start.
 
 ## Transaction and snapshot boundaries
 

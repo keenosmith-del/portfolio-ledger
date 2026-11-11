@@ -13,4 +13,4 @@ Verified capability is bounded synthetic finance operations, not a commercial pr
 9. **Append-only evidence.** DB triggers enforce application-level immutability; a superuser/owner is outside that protection. Migration and runtime roles must be separated for hosted use.
 10. **CI is code, not a claimed green run.** Local checks/build/browser evidence exist; hosted Actions success only after push and actual run inspection. Upstream Starlette TestClient currently emits an httpx deprecation warning.
 
-First follow-up: tighter generated API contracts and database scopes on pricing; profile/stage import data, comprehensive malicious parser fuzzing, isolated reviewer lifecycle, then an approved TLS deployment and backup restore drill. No optional claims/AI features are added before these core operational concerns.
+First follow-up: tighter generated API contracts; profile/stage import data, comprehensive malicious parser fuzzing, isolated reviewer lifecycle, then an approved TLS deployment and backup restore drill. No optional claims/AI features are added before these core operational concerns.

@@ -1,5 +1,7 @@
 # Iteration 002 — Import, authorization and finance API
 
+Current status: accepted after recorded correction; red checkpoint retained below.
+
 Starting state: foundation commit `52ecd33`; migrated PostgreSQL schema and seven passing domain tests. Objective: exercise real database invariants and HTTP journey before interface work.
 
 Changes: real FastAPI endpoints; persisted cookie sessions and CSRF; grants; bounded upload and login/write throttling; deterministic fixtures and seed; per-test isolated PostgreSQL schemas created through Alembic; concurrency, crash/recovery, IDOR and immutability tests. Added typed portfolio-entity base after mypy found six attribute/type errors in generic pagination. Strict mypy then passed 15 source files.
