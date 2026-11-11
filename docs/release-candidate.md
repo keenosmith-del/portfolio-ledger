@@ -2,7 +2,7 @@
 
 Implementation/local acceptance complete. **Public deployment NO-GO** pending owner-authorized branch publication/inspected candidate CI, actual HTTPS ingress, verified-TLS PostgreSQL runtime secrets, hosted backup/restore and alerting. No cloud resources or public app URL claimed.
 
-Branch: `codex/portfolio-ledger-release-ui-v2`. Starting SHA `3a605a0b130a9ece50b9308cef198573b85383b8`, 14 inherited dirty files preserved. Implementation increment `7ed81c6`; final evidence/ownership correction is the subsequent commit (`git log -1`). No push/PR/hosted candidate CI yet. Prior build PR #1 was already merged before this iteration.
+Branch: `codex/portfolio-ledger-release-ui-v2`. Starting SHA `3a605a0b130a9ece50b9308cef198573b85383b8`, 14 inherited dirty files preserved. Implementation increment `7ed81c6`; final evidence/ownership correction is the subsequent commit (`git log -1`). Published with owner authorization; [draft PR #2](https://github.com/keenosmith-del/portfolio-ledger/pull/2) is open. Initial hosted run failed on bundled pip; tooling correction and rerun are in progress. Prior build PR #1 was already merged before this iteration.
 
 Verified: neutral UI/login/shared primitives, source registry and historical migration, direct public mutation denial/synthetic scope, bounded secure sessions/CSRF/origins/Host/proxy controls, fail-closed production config, dynamic readiness with database/schema/table-owner rejection, explicit release migrations, non-root restricted containers, distinct runtime-role financial journey, local backup/restore and restart. Generated response DTOs, parser fuzz campaign, OS-image scans, isolated public writable review and hosted infrastructure remain deferred.
 
@@ -14,4 +14,4 @@ Actual verification: 41 backend tests / 35.88s / 85% / one upstream deprecation 
 
 Run `python3 scripts/init_env.py` then `docker compose up --build -d`, open http://localhost:5173, private DEMO_PASSWORD from `.env`, November 2026. Admin/analyst interactive; reviewer@portfolioledger.test read only. Password-free public testing and exact deployment/role commands are in [deployment](deployment.md). Final local stack is private mode.
 
-Next owner action: authorize pushing this reviewed branch and opening a draft PR so candidate Actions can run. The supplied phase 5 explicitly makes pushing conditional on authorization. Review visuals before merge; do not deploy until hosted gates pass.
+Owner authorized branch publication and draft PR. Review visuals/checks in draft PR #2 before merge; do not deploy until hosted infrastructure gates pass.

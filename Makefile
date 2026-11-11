@@ -1,6 +1,7 @@
 .PHONY: setup up down dev-api dev-web worker migrate seed check test acceptance e2e fixtures
 setup:
 	python3.12 -m venv .venv
+	.venv/bin/python -m pip install --upgrade "pip>=26.2"
 	.venv/bin/pip install -e './backend[dev]'
 	npm --prefix frontend ci
 up:

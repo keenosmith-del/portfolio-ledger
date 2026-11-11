@@ -62,3 +62,7 @@ After successfully writing screenshots, capture helper failed its new logout req
 ## D025 — Readiness proxy omitted Host under strict trusted-host enforcement
 
 Actual frontend `/ready` returned 400 while direct API was healthy. Nginx forwarded its internal upstream Host only on this location. Both local and production configs now forward the original browser Host/protocol, retaining strict trusted-host policy. Original Chrome journey now verifies the real readiness dialog; public case asserts same-origin readiness HTTP 200. Corrected route returns ready/b003; final private/public suites pass (33.1s / 9.9s).
+
+## D026 — Hosted bootstrap pip fails unsuppressed audit
+
+First actual candidate Actions run [43027005906](https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43027005906) failed at pip-audit: pip 25.0.1 bundled by runner venv, 12 reported findings in that single package (some advisory aliases duplicated). CI/local bootstrap and runtime image now explicitly upgrade pip>=26.2 before installation. Scanner remains enabled with no advisory suppressions. Actual hosted rerun outcomes recorded in journal/validation.

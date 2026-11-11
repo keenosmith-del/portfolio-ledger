@@ -75,4 +75,4 @@ Private interactive hosting requires a separately access-controlled environment 
 
 ## Git and CI gate
 
-Release work is on `codex/portfolio-ledger-release-ui-v2`, starting at 3a605a0 with preserved dirty local changes. Prior build PR #1 is merged; remote main was inspected at 21275fa. Candidate branch publishing/PR/Actions status is recorded in final evidence only when actually performed. A workflow file alone is not a passing hosted run. Do not merge or release with failed/unrun checks.
+Release work is on `codex/portfolio-ledger-release-ui-v2`, starting at 3a605a0 with preserved dirty local changes. Prior build PR #1 is merged; remote main was inspected at 21275fa. Owner authorized publication; draft PR #2 is open at https://github.com/keenosmith-del/portfolio-ledger/pull/2. Initial candidate run failed at bundled pip tooling audit; corrected bootstrap and actual rerun status are recorded in validation. A workflow file alone is not a passing hosted run. Do not merge or release with failed/unrun checks.
