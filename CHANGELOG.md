@@ -4,7 +4,7 @@
 
 - Add per-service Docker configs, private same-origin Nginx proxy and exact DNS-resolved proxy trust.
 - Add direct verified-TLS Neon inspection and explicit owner-only release operation.
-- Local static checks, 45 PostgreSQL tests and both container builds pass. Hosted release remains unverified.
+- Static checks, 46 PostgreSQL tests and both container builds pass. Hosted reviewer/security, direct verified-TLS runtime roles and isolated Neon restore pass; final operational promotion/monitoring checks remain in progress.
 
 ## 0.1.0 — Local verification release, 2026-11-11
 
