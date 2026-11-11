@@ -1,0 +1,108 @@
+{
+  "status": "success",
+  "workflow_url": "https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43027530061",
+  "run_id": 43027530061,
+  "head_sha": "65fdea6f4a9f0df01fa2cd65dd50706b32b91012",
+  "event": "pull_request",
+  "backend_summary": [
+    "41 passed, 1 warning in 22.74s"
+  ],
+  "browser_summaries": [
+    "6 passed (24.4s)",
+    "1 passed (3.4s)"
+  ],
+  "steps": [
+    {
+      "name": "Set up job",
+      "conclusion": "success"
+    },
+    {
+      "name": "Initialize containers",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/checkout@v4",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/setup-python@v5",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/setup-node@v4",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run python -m venv .venv",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run .venv/bin/python -m pip install --upgrade \"pip>=26.2\"",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run .venv/bin/pip install -e './backend[dev]'",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run npm --prefix frontend ci",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run make check",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run .venv/bin/pip-audit",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run npm --prefix frontend audit --audit-level=high",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run make test",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run make migrate",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run make seed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run make acceptance",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run cd frontend && npx playwright install --with-deps chrome",
+      "conclusion": "success"
+    },
+    {
+      "name": "Browser journey with API and durable worker",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Run actions/setup-node@v4",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Run actions/setup-python@v5",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Run actions/checkout@v4",
+      "conclusion": "success"
+    },
+    {
+      "name": "Stop containers",
+      "conclusion": "success"
+    },
+    {
+      "name": "Complete job",
+      "conclusion": "success"
+    }
+  ]
+}

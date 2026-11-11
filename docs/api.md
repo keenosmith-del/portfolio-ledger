@@ -27,3 +27,13 @@ Login `POST /api/auth/login` with email/password; response returns role/email an
 Pagination uses offset >=0 and limit 1–100 (default 25). Public `/health` is liveness; `/ready` checks database and schema/configuration. `GET /api/portfolios` lists only grants. Errors use `error.code` and `request_id`, validation errors list field paths but never rejected passwords/payload values. HTTP 401 auth, 403 reviewer/CSRF/origin, 404 scoped missing, 409 idempotency/lifecycle conflict, 413 size, 422 schema, 429 fixed-window limit, 503 database/unready.
 
 Frontend's `src/api.ts` is the manually maintained typed response contract; automatic OpenAPI client generation is not claimed. API ORM response objects are column dictionaries and OpenAPI does not enumerate every response column. Request bodies are Pydantic v2 models; explicit typed response models are a future contract-hardening task.
+
+## Release source and public-review contract
+
+`GET /api/auth/options` reports whether public review is enabled. `POST /api/auth/public-review` creates only the dedicated synthetic reviewer session; it publishes no password and refuses missing/non-synthetic grants. Login and `/api/auth/me` include effective `read_only`, including the global public-mode business-write lock. Public sessions expire after one hour; private sessions after eight hours. Current session and Origin/CSRF protections remain unchanged for authenticated writes.
+
+`GET /api/portfolios/{portfolio_id}/integration-sources` lists enabled source keys/adapters within the caller's portfolio grant. Upload `source_key` must match one of those registry entries; unknown, disabled, mismatched or foreign entries return `422 source_not_configured`. Replay retains and revalidates its original registered identity. Registry creation/update has no HTTP endpoint and is forbidden to runtime database roles.
+
+Public reviewer directly calling upload/replay/reconcile/exception-review/preview-creation receives 403. Existing evidence, previews and CSV remain readable. Public synthetic scope is rechecked for existing sessions, not just session creation. Production public mode blocks business mutations for every role.
+
+`GET /ready` compares installed revisions with current Alembic heads. Production also rejects privileged roles and database/schema/table ownership/membership. Nginx forwards original browser Host to readiness as well as API routes. Production configuration is validated before service startup; see deployment contract.
