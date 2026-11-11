@@ -80,3 +80,11 @@ First deployment CI: 43 passed, one failed because Settings fixture inherited wo
 ## D029 — Neon server TLS statistics describe the proxy hop
 
 Neon pg_stat_ssl false/null was not evidence of the client connection: actual libpq ssl_in_use true with verify-full. Operator inspection now requires actual client TLS and negotiated connection parameter verify-full, retaining backend statistics separately. Plaintext/weak-client-mode regression added. No TLS version fabricated; Psycopg exposes no ssl_attribute_names.
+
+## D030 — Railway private DNS startup dependency cycle
+
+Actual API startup could not resolve web.railway.internal; web deployment /ready could not resolve api.railway.internal. Neither dependent service became healthy. Web now checks its own static homepage at deployment startup; real public /ready still checks private API/database. API trusts only exact resolved web addresses. Safe infrastructure apply accepted; hosted result pending.
+
+## D031 — Fresh restore database already contains public schema
+
+Hosted pg_restore --exit-on-error stopped at schema public already exists; isolated DB remained at zero public tables, source untouched. Read-only dump preflight passed. Restore TOC now omits exactly the public schema CREATE entry, avoiding clean/drop and preserving all data/constraints/triggers. Retry uses the same verified empty isolated DB; outcome pending.

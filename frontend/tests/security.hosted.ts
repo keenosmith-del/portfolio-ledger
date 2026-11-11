@@ -4,7 +4,8 @@ test("hosted reviewer keeps HTTPS and protected session boundaries", async ({
   page,
   context,
 }) => {
-  await page.goto("/");
+  const home = await page.goto("/");
+  expect(home?.headers()["strict-transport-security"]).toContain("max-age=");
   expect(new URL(page.url()).protocol).toBe("https:");
   const login = page.waitForResponse((response) =>
     response.url().endsWith("/api/auth/public-review"),

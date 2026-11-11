@@ -17,7 +17,7 @@ export default defineRailway(() => {
   const web = service("web", {
     source: source("/frontend"), build, replicas: { iad: 1 },
     start: "/bin/sh /opt/portfolioledger/start-railway.sh",
-    healthcheck: "/ready", healthcheckTimeout: 300, deploy,
+    healthcheck: "/", healthcheckTimeout: 300, deploy,
   });
   const api = service("api", {
     source: source("/backend"), build, replicas: { iad: 1 },

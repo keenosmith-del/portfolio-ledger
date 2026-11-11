@@ -89,7 +89,7 @@ Railway does **not** run `compose.production.yaml`. Current services also cannot
 | api | `/backend` | `python -m app.operations.serve` | None |
 | worker | `/backend` | `python -m app.workers.runner` | None |
 
-Use branch `codex/railway-neon-deployment` until reviewed/merged and wait for successful CI. Every service uses its existing Dockerfile. Keep worker persistent (sleep/serverless off), one replica. API listens on `[::]:8000`; web on 8080. Private DNS names must be `web.railway.internal` and `api.railway.internal`. Existing failed service was renamed web and its private endpoint renamed web.railway.internal. Plan verified safe updates to web plus creation of api/worker, zero destruction.
+Use branch `codex/railway-neon-deployment` until reviewed/merged and wait for successful CI. Every service uses its existing Dockerfile. Keep worker persistent (sleep/serverless off), one replica. API listens on `[::]:8000`; web on 8080. Web startup health checks `/` independently, breaking the private-DNS bootstrap cycle; `/ready` remains the public API/database readiness probe. Private DNS names must be `web.railway.internal` and `api.railway.internal`. Existing failed service was renamed web and its private endpoint renamed web.railway.internal. Plan verified safe updates to web plus creation of api/worker, zero destruction.
 
 Set web `PUBLIC_HOST` to its exact generated HTTPS hostname, `API_UPSTREAM_HOST=api.railway.internal`, `API_UPSTREAM_PORT=8000`, `PORT=8080`. API/worker use:
 
@@ -123,3 +123,9 @@ Set `PLAYWRIGHT_BASE_URL` to the actual HTTPS origin and `PLAYWRIGHT_SCREENSHOT_
 `.github/workflows/hosted-availability.yml` runs a small read-only HTTPS/readiness/reviewer-options probe every 15 minutes once merged to the default branch and `PUBLIC_APPLICATION_URL` repository variable is set. Manual dispatch supports immediate verification. GitHub scheduling can be delayed; this is an availability signal, not an uptime SLA. Enable Actions failure notifications in the owner's GitHub account. Provider crash/log/error alert delivery and a real alert drill remain independent release gates.
 
 Neon's direct endpoint still uses its managed proxy. Inspect libpq's actual `ssl_in_use` and live connection sslmode=verify-full; server `pg_stat_ssl` describes a separate hop and may report false/null. The operator checker requires verified client TLS and records server statistics separately. No client certificate verification exception is allowed.
+
+### Hosted backup and restore drill
+
+With the same private owner environment, `APP_ENV=development`, owner `DATABASE_URL` and host-appropriate PGSSLROOTCERT, run `PYTHONPATH=backend:scripts .venv/bin/python scripts/neon_backup_restore.py`. It requires actual verified client TLS and explicitly synthetic portfolios, creates a uniquely named `portfolioledger_restore_*` database on the existing compute, dumps public schema with PostgreSQL 18 tools, restores with no source-owner/ACL overwrite, and compares exact business hashes/IDs/ledger total plus unchanged source. Never point pg_restore at neondb. The private temporary dump is removed automatically; the isolated restore DB is retained for owner review because deployment authorization excludes destructive changes.
+
+Neon observed Free retention is six hours. That short recovery window and an on-demand drill are not a recurring retained backup policy. Configure required retention/export and verify a recovery point before public release; paid retention changes require owner approval. The drill creates no new compute or paid plan. TLS remains verify-full for host and container clients.

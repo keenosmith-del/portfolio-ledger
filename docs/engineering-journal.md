@@ -209,3 +209,21 @@ Direct Neon preflight found empty public schema (0 tables), owner CREATEROLE/CRE
 ## 2026-11-11 17:44:46 UTC — Corrected local gate accepted; owner release started
 
 make check passed. Full PostgreSQL regression 45 passed / 20.07s / one warning / 83% coverage on dirty deployment branch after a9eeaa7. Actual Neon client TLS active + live verify-full preflight passed. Started explicit one-off app.operations.release with private owner environment after confirming empty target schema. Output captured privately, exception reporting sanitized; owner credentials never set on ordinary services. Outcome pending, no success inferred.
+
+## 2026-11-11 17:49:33 UTC — Neon release and runtime boundaries verified
+
+Explicit owner release completed successfully: Alembic b003, bundled synthetic seed, SQL-created independent API/worker roles and actual-client TLS. Both runtime connections passed inspector: client TLS true, verify-full, direct non-pooled connection, current b003, no privileged flags/memberships or database/schema/table ownership. Sanitized neon-runtime-verification.json saved. Only respective runtime DATABASE_URL values were sent to Railway via stdin, skip-deploys; owner secrets never attached. Worker startup log before runtime DSNs confirmed production safeguard rejected missing private verified-TLS role.
+
+Created draft PR #3. Push run 43071119108 cancelled normally by PR concurrency; replacement 43071397070 passed tests/static/audits and reached isolated financial acceptance. Added hosted restore script: only synthetic portfolios, new uniquely named database, PostgreSQL 18 pg_dump/pg_restore, client verify-full, exact business table hashes/IDs/total and source-unchanged comparison, private dump removed, no database deletion. Formatter/import/check-argument issues corrected before make check passed. Hosted drill started; result pending.
+
+## 2026-11-11 17:55:59 UTC — CI green; real cloud bootstrap and restore defects corrected
+
+Corrected PR CI 43071397070 succeeded for db1b599, including 45 PostgreSQL tests, isolated 10k financial acceptance, private/public browser and audits/static checks. Redeployed all three services with private runtime DSNs. Worker reached SUCCESS; API/web remained DEPLOYING. Public HTTPS request reached Railway edge but returned application-not-found 404 while deployment was not ready (no success inferred). API logs showed web DNS absent; web health logs showed api DNS absent. This is a real startup cycle because web's API readiness healthcheck blocks publication of web DNS needed for API exact proxy trust. Changed only web startup healthcheck to static homepage; public /ready still checks API/database. Safe IaC plan/apply succeeded, no wildcard or broad proxy trust.
+
+Hosted restore failed; read-only pg_dump schema preflight passed with client 18.6 and readable trusted CA bundle. Verified isolated restore DB public tables=0. Retried only that empty isolated DB to obtain sanitized actual error: public schema already exists. Corrected archive TOC to omit exactly one public-schema CREATE entry; no DROP/clean/production overwrite. Retry in same verified-empty isolated database running. Added HSTS to Railway Nginx and assertion to hosted security case; static/type/build/style check passed before upcoming publication.
+
+## 2026-11-11 17:59:35 UTC — Hosted restore verified; web bootstrap accepted
+
+Hosted restore retry passed exact hashes/IDs across 14 business tables and ledger total; source unchanged, temporary private dump removed. Retained isolated database portfolioledger_restore_202611111749116dacb6 for owner review; no database dropped or source reset. Sanitized neon-restore-verification.json saved.
+
+Web static startup health succeeded: actual HTTPS homepage HTTP 200. /ready still returned 502 while private API not ready. Railway restart API reported deployment not restartable, so retried redeploy (not security relaxation). CLI SSH diagnostic unavailable because account has no registered SSH keys; no extra SSH credential created. Railway DNS logs subsequently verified web.railway.internal NOERROR A/AAAA (earlier NXDOMAIN), demonstrating corrected startup cycle. API startup/recovery validation pending.

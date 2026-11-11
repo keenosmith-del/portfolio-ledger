@@ -43,3 +43,6 @@ Hosted code candidate 65fdea6 passed full [Actions](https://github.com/keenosmit
 
 - [Railway/Neon deployment iteration](iterations/007-railway-neon-deployment.md): local image/config/test evidence and explicit outstanding hosted gates.
 - [Railway deployment architecture](adr/006-railway-neon-deployment.md): service/private proxy/owner credentials decision.
+
+- [Neon runtime verification](evidence/neon-runtime-verification.json): actual direct verified client TLS, b003, least-privilege boundaries for both roles.
+- [Hosted Neon restore](evidence/neon-restore-verification.json): exact business hashes/IDs/totals and unchanged source, isolated database retained.
