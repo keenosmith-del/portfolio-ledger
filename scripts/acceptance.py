@@ -165,7 +165,11 @@ try:
         "commit": subprocess.check_output(
             ["git", "rev-parse", "--short", "HEAD"], cwd=root, text=True
         ).strip(),
-        "working_tree": "see git status; benchmark includes uncommitted acceptance script",
+        "working_tree": "dirty"
+        if subprocess.check_output(
+            ["git", "status", "--porcelain"], cwd=root, text=True
+        ).strip()
+        else "clean",
         "financial_events": 10000,
         "artifact_bytes": len(content),
         "receipts": receipts,

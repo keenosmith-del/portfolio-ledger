@@ -26,3 +26,7 @@ Application defects will be appended with the failing test/command and passing r
 | D011 | Repeated browser runs accumulated exceptions, changing accessible nav button name to Reconciliation plus count; exact navigation locator timed out (mobile still passed) | Explicit stable aria-label on navigation controls; retain visible count | Rerun pending |
 
 | D012 | Browser journey completed persisted preview/reload/audit, then expected a ledger event while viewing Leases after reload reset mode (1 failed / 1 passed, 13.7s) | Test explicitly selects Ledger for second portfolio instead of assuming pre-reload UI mode survives | Rerun pending |
+
+| D013 | Final direct-SQL boundary regressions both failed: preview could reference another portfolio's pricing and same event/revision could be inserted under different financial kinds | Add composite pricing ownership FK and partial unique non-reversal event/revision index through new Alembic revision | Red: 2 failed in 0.74s; fix/rerun pending |
+
+| D013 fixed | Scope/identity enforced only by service for two paths | Alembic b002 adds composite pricing FK and partial event/revision uniqueness, plus state/revision checks | 26 passed, 85% coverage, 9.23s; both new direct-DB tests now pass |

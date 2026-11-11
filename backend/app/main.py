@@ -195,7 +195,7 @@ def health() -> dict[str, str]:
 def ready(db: Session = Depends(get_db, scope="function")) -> dict[str, str]:
     db.execute(text("SELECT 1"))
     version = db.scalar(text("SELECT version_num FROM alembic_version"))
-    if version != "b001" or (settings.app_env == "production" and not settings.cookie_secure):
+    if version != "b002" or (settings.app_env == "production" and not settings.cookie_secure):
         raise HTTPException(503, "configuration_or_migration_not_ready")
     return {"status": "ready", "schema": str(version)}
 

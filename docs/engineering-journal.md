@@ -55,3 +55,11 @@ Browser rerun then revealed navigation accessible-name instability after accumul
 ## 2026-11-11 — Browser milestone green, container build
 
 Chrome reviewer journey and mobile viewport now **2 passed in 7.3s**. The last test correction selected Ledger explicitly after reload; backend persistence was intact and only local UI mode reset. Expanded worker/error/revision suite **24 passed in 8.03s**, 85% coverage (larger seed-code denominator). Container builds succeeded for all three app images. Recording milestone before release/container persistence work. No hosted CI or public deployment result is inferred from these local checks.
+
+## 2026-11-11 — Final database-boundary audit
+
+Added direct-DB tests beyond the already passing API authorization/source service tests. Both failed (2 failed in 0.74s): pricing FK linked only global pricing ID, and ledger's type-inclusive unique constraint permitted a second posting of another kind with same event/revision. These were blocked by current service logic but not database boundary. Add migration `b002` with composite pricing scope and partial uniqueness across non-reversal types; keep reversal coexistence. This is explicit schema evolution after initial applied migrations, not rewriting history. Also adding positive revision and row/job validity checks.
+
+## 2026-11-11 — Database hardening green and release checkpoint
+
+Added b002 as a new migration, enforcing pricing portfolio ownership and type-independent non-reversal event identity. Both failing direct-DB tests now pass; complete suite **26 passed / one upstream warning in 9.23s**, 85% coverage. Strict mypy passes. Added durable recovery fixture to seed (real injected rollback then second attempt), CI and operational documentation. Container runtime verification next; no cloud resources created. Removed accidentally tracked tsconfig.tsbuildinfo and ignored generated build-state files. No claimed bulk-performance improvement; repeat acceptance planned because schema invariants changed.

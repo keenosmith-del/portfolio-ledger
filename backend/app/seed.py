@@ -5,11 +5,11 @@ from sqlalchemy import select
 
 from app.core.auth import hasher
 from app.core.config import settings
-from app.db.models import Access, Portfolio, Pricing, User
+from app.db.models import Access, Portfolio, Pricing, User, now
 from app.db.session import SessionLocal
 from app.integrations.synthetic import atlas_feed, meridian_feed
-from app.services.common import lock
-from app.services.ingestion import enqueue
+from app.services.common import audit, lock
+from app.services.ingestion import enqueue, process
 from app.workers.runner import tick
 
 
@@ -67,6 +67,47 @@ def seed() -> None:
                 users[0].id,
                 "seed-v1",
             )
+    while tick():
+        pass
+    # Persist a real rolled-back attempt and recovery for reviewer diagnostics.
+    with SessionLocal.begin() as db:
+        cedar = db.scalar(select(Portfolio).where(Portfolio.adapter == "atlaspm"))
+        admin = db.scalar(select(User).where(User.email == "admin@portfolioledger.test"))
+        assert cedar and admin
+        recovery, _ = enqueue(
+            db,
+            cedar.id,
+            "atlaspm",
+            "atlaspm-demo",
+            "seed-recovery-v1",
+            "recovery.csv",
+            atlas_feed(),
+            admin.id,
+            "seed-recovery-v1",
+        )
+        should_fail = recovery.attempts == 0 and recovery.status == "queued"
+        if should_fail:
+            recovery.status = "processing"
+            recovery.attempts = 1
+            recovery.lease_until = now()
+        recovery_id = recovery.id
+    if should_fail:
+        try:
+            with SessionLocal.begin() as db:
+                process(db, recovery_id, fail_after=4)
+        except RuntimeError as exc:
+            if str(exc) != "deterministic_crash":
+                raise
+            with SessionLocal.begin() as db:
+                audit(
+                    db,
+                    cedar.id,
+                    admin.id,
+                    "import.recovery_demonstrated",
+                    recovery_id,
+                    "seed-recovery-v1",
+                    {"injected_failure_after_row": 4, "attempt_rolled_back": True},
+                )
     while tick():
         pass
     print(

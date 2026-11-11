@@ -448,3 +448,54 @@ def test_version_conflict_does_not_mutate_posting(
             db.scalar(select(RawRecord.reason).where(RawRecord.reason == "revision_conflict"))
             == "revision_conflict"
         )
+
+
+def test_preview_pricing_cannot_cross_portfolio(
+    factory: sessionmaker[Session], demo: dict[str, Any]
+) -> None:
+    from app.db.models import Pricing
+
+    with factory() as db:
+        other = db.scalar(select(Pricing).where(Pricing.portfolio_id == demo["b"]))
+        assert other
+        pricing_id = other.id
+    with pytest.raises(IntegrityError), factory.begin() as db:
+        db.add(
+            Preview(
+                portfolio_id=demo["a"],
+                month="2026-11",
+                cutoff=now(),
+                pricing_id=pricing_id,
+                total=Decimal("0.00"),
+                config={},
+                unresolved_exceptions=[],
+            )
+        )
+
+
+def test_event_revision_unique_across_kinds(
+    factory: sessionmaker[Session], demo: dict[str, Any]
+) -> None:
+    queued(factory, demo, atlas_feed(1, False))
+    tick()
+    with factory() as db:
+        existing = db.scalar(select(LedgerEntry))
+        assert existing
+        values = {
+            "portfolio_id": existing.portfolio_id,
+            "lease_id": existing.lease_id,
+            "raw_id": existing.raw_id,
+            "source_key": existing.source_key,
+            "external_id": existing.external_id,
+            "revision": existing.revision,
+            "effective_date": existing.effective_date,
+        }
+    with pytest.raises(IntegrityError), factory.begin() as db:
+        db.add(
+            LedgerEntry(
+                **values,
+                kind="payment",
+                amount=Decimal("-1.00"),
+                reason="must conflict regardless of kind",
+            )
+        )

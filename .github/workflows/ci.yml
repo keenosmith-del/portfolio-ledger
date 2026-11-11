@@ -1,0 +1,43 @@
+name: Verify financial operations
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ledger
+          POSTGRES_PASSWORD: ci_only_password
+          POSTGRES_DB: ledger
+        ports: [5438:5432]
+        options: >-
+          --health-cmd "pg_isready -U ledger"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+    env:
+      DATABASE_URL: postgresql+psycopg://ledger:ci_only_password@localhost:5438/ledger
+      DEMO_PASSWORD: CI-only-synthetic-password
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '24', cache: npm, cache-dependency-path: frontend/package-lock.json}
+      - run: python -m venv .venv
+      - run: .venv/bin/pip install -e './backend[dev]'
+      - run: npm --prefix frontend ci
+      - run: make check
+      - run: make test
+      - run: make migrate
+      - run: make seed
+      - run: make acceptance
+      - run: cd frontend && npx playwright install --with-deps chrome
+      - name: Browser journey with API and durable worker
+        run: |
+          make dev-api > /tmp/api.log 2>&1 &
+          make worker > /tmp/worker.log 2>&1 &
+          make dev-web > /tmp/web.log 2>&1 &
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/ready && curl -fsS http://127.0.0.1:5173/ && break; sleep 1; done
+          make e2e

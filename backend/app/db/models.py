@@ -17,6 +17,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -88,6 +89,8 @@ class Pricing(PortfolioEntity):
     rule: Mapped[str] = mapped_column(String(40), default="active_on_month_start")
     __table_args__ = (
         UniqueConstraint("portfolio_id", "version"),
+        UniqueConstraint("portfolio_id", "id", name="uq_pricing_portfolio_id"),
+        CheckConstraint("version > 0", name="ck_pricing_version"),
         CheckConstraint("monthly_fee >= 0"),
         CheckConstraint("rule = 'active_on_month_start'"),
     )
@@ -119,6 +122,10 @@ class ImportJob(PortfolioEntity):
             "status IN ('queued','processing','completed','partially_completed','failed')"
         ),
         Index("ix_import_queue", "status", "lease_until"),
+        CheckConstraint(
+            "attempts >= 0 AND attempts <= 3 AND accepted >= 0 AND duplicates >= 0 AND quarantined >= 0",
+            name="ck_import_counts",
+        ),
     )
 
 
@@ -137,6 +144,9 @@ class RawRecord(PortfolioEntity):
             ["portfolio_id", "job_id"], ["import_jobs.portfolio_id", "import_jobs.id"]
         ),
         UniqueConstraint("job_id", "row_number"),
+        CheckConstraint(
+            "status IN ('pending','accepted','duplicate','quarantined')", name="ck_raw_status"
+        ),
         UniqueConstraint("portfolio_id", "id"),
         Index("ix_raw_portfolio_external", "portfolio_id", "external_id"),
     )
@@ -193,6 +203,7 @@ class LeaseVersion(PortfolioEntity):
         ForeignKeyConstraint(["portfolio_id", "unit_id"], ["units.portfolio_id", "units.id"]),
         ForeignKeyConstraint(["portfolio_id", "tenant_id"], ["tenants.portfolio_id", "tenants.id"]),
         UniqueConstraint("lease_id", "revision"),
+        CheckConstraint("revision > 0", name="ck_lease_revision"),
         CheckConstraint("rent >= 0"),
         CheckConstraint("end_date IS NULL OR end_date >= start_date"),
         CheckConstraint("status IN ('active','ended')"),
@@ -230,6 +241,16 @@ class LedgerEntry(PortfolioEntity):
         ),
         CheckConstraint("(kind = 'reversal') = (reverses_id IS NOT NULL)"),
         Index("ix_ledger_portfolio_date", "portfolio_id", "effective_date", "created_at"),
+        CheckConstraint("revision > 0", name="ck_ledger_revision"),
+        Index(
+            "uq_ledger_posting_revision",
+            "portfolio_id",
+            "source_key",
+            "external_id",
+            "revision",
+            unique=True,
+            postgresql_where=text("kind <> 'reversal'"),
+        ),
     )
 
 
@@ -277,6 +298,11 @@ class Preview(PortfolioEntity):
     total: Mapped[Decimal] = mapped_column(Numeric(18, 2))
     __table_args__ = (
         UniqueConstraint("portfolio_id", "month", "cutoff", "pricing_id"),
+        ForeignKeyConstraint(
+            ["portfolio_id", "pricing_id"],
+            ["pricing_versions.portfolio_id", "pricing_versions.id"],
+            name="fk_preview_pricing_scope",
+        ),
         UniqueConstraint("portfolio_id", "id"),
         CheckConstraint("total >= 0"),
     )

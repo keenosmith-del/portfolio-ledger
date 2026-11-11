@@ -39,3 +39,7 @@ Full HTTP journey, both adapters, evidence review, duplicate preview and CSV exp
 `cd frontend && npm run test:e2e`: **2 passed in 7.3s**, real installed Chrome against local API/Vite/PostgreSQL/separate worker. Full reviewer journey + 390px mobile; no horizontal document overflow. Historical browser failures/corrections are recorded as D008–D012. Backend `pytest -q --cov=app --cov-report=term-missing`: **24 passed, 1 warning in 8.03s**, **85% coverage**. Added worker infrastructure-failure retry cap and unchanged-revision conflict tests. Coverage denominator increased with recovery seed code; earlier 86% is not claimed as a lasting final percentage.
 
 `docker compose build`: API, worker and Nginx frontend images all built successfully. Full container startup/restart verification still pending at this entry.
+
+## Final schema boundary verification
+
+Added two direct-SQL tests: cross-portfolio pricing reference and duplicate event/revision under a different kind. Initial targeted result **2 failed in 0.74s** (both missing IntegrityError). New migration b002 enforces both below service layer. Full `pytest -q --cov=app --cov-report=term-missing`: **26 passed, one upstream warning in 9.23s**, **85% coverage**. Strict mypy passes (15 files). Actual failed-to-passing reason and migration documented in ADR-004.
