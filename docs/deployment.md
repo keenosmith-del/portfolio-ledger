@@ -1,6 +1,6 @@
 # Release deployment contract
 
-**Current verdict: NO-GO for public deployment.** No public URL or cloud infrastructure is claimed. Local full-stack verification is documented separately in validation. Operator-supplied HTTPS ingress, TLS PostgreSQL, role secrets, backup scheduling and alerting must be configured and verified, and candidate GitHub Actions must pass before release.
+**Current verdict: NO-GO for public deployment.** No public URL or cloud infrastructure is claimed. Local full-stack verification is documented separately in validation. Operator-supplied HTTPS ingress, TLS PostgreSQL, role secrets, backup scheduling and alerting must be configured and verified, and latest branch checks must pass before release. Full code-candidate Actions has passed.
 
 ## Verified local workflow
 
@@ -75,4 +75,4 @@ Private interactive hosting requires a separately access-controlled environment 
 
 ## Git and CI gate
 
-Release work is on `codex/portfolio-ledger-release-ui-v2`, starting at 3a605a0 with preserved dirty local changes. Prior build PR #1 is merged; remote main was inspected at 21275fa. Owner authorized publication; draft PR #2 is open at https://github.com/keenosmith-del/portfolio-ledger/pull/2. Initial candidate run failed at bundled pip tooling audit; corrected bootstrap and actual rerun status are recorded in validation. A workflow file alone is not a passing hosted run. Do not merge or release with failed/unrun checks.
+Release work is on `codex/portfolio-ledger-release-ui-v2`, starting at 3a605a0 with preserved dirty local changes. Prior build PR #1 is merged; remote main was inspected at 21275fa. Owner authorized publication; draft PR #2 is open at https://github.com/keenosmith-del/portfolio-ledger/pull/2. Initial run failed at bundled pip audit. Corrected code candidate 65fdea6 passed full Actions https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43027530061; latest PR checks remain required. Counts/benchmark are in validation. A workflow file alone is not a passing hosted run. Do not merge or release with failed/unrun checks.

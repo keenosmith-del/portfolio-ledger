@@ -36,3 +36,5 @@ Chronology and initial failed checkpoints remain in Git and docs rather than bei
 - Separate migration release task, non-root/capability-restricted containers, standalone production contract and owner-run distinct runtime grants, tested through a complete financial journey.
 - Added actual local backup/restore drill, dependency scans, style guard, WCAG browser audit and responsive/keyboard/read-only regressions.
 - Verified 41 backend tests, six private and one public browser cases; actual 10k import/replay, local backup/restore, complete restart and reviewed screenshots linked in validation. Public deployment/hosted CI remain gated, no cloud claim.
+
+Owner-authorized draft PR #2 published; actual initial bundled-pip audit failure corrected by upgraded bootstrap. Code candidate 65fdea6 passed full hosted CI; actual runtime package inventory audit also passed. Local/hosted benchmark evidence remains separate. Public deployment still NO-GO pending operator infrastructure.

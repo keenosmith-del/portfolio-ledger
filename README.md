@@ -23,6 +23,8 @@ Current branch refreshes every screen with a neutral white design system and add
 
 Latest local candidate: **41 PostgreSQL tests, seven Chrome cases**, static/type/build/style checks, local restore and full restart pass. All six views plus login have actual reviewed before/after screenshots.
 
+Corrected code candidate passed full [hosted Actions](https://github.com/keenosmith-del/portfolio-ledger/actions/runs/43027530061), including both browser suites and 10k acceptance. [Draft PR #2](https://github.com/keenosmith-del/portfolio-ledger/pull/2) is open; latest checks and visual review remain required before merge.
+
 Uploads now select enabled configured source identities. Additive migration b003 retains historical keys disabled until reviewed; explicit synthetic seed enables the two known fictional demo sources. A new source key cannot create another ledger namespace through the API.
 
 ## Quick start — Docker

@@ -1,6 +1,6 @@
 # Security and demo boundaries
 
-Current release candidate is verified locally; **public deployment remains NO-GO until operator HTTPS/TLS, infrastructure, candidate CI and release checks pass**. No real customer records, provider APIs, payment instructions, actual invoices or insurance decisions exist. This independent project has no provider affiliation.
+Current code candidate is verified locally and by full hosted CI; **public deployment remains NO-GO until operator HTTPS/TLS, infrastructure and release checks pass**. Latest PR checks are required before merge. No real customer records, provider APIs, payment instructions, actual invoices or insurance decisions exist. This independent project has no provider affiliation.
 
 ## Implemented controls
 
