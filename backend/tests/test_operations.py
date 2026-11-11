@@ -301,3 +301,150 @@ def test_retries_bounded(factory: sessionmaker[Session], demo: dict[str, Any]) -
     with factory() as db:
         job = db.get(ImportJob, job_id)
         assert job and job.status == "failed" and job.error == "attempt_limit_exceeded"
+
+
+def test_cutoff_excludes_unpublished_rows(
+    factory: sessionmaker[Session], demo: dict[str, Any]
+) -> None:
+    from app.services.finance import lease_versions
+
+    job_id = queued(factory, demo)
+    tick()
+    with factory.begin() as db:
+        job = db.get(ImportJob, job_id)
+        assert job
+        # Model a long-running import: rows existed before cutoff, publication later.
+        cutoff = job.completed_at - timedelta(microseconds=1)  # type: ignore[operator]
+        assert lease_versions(db, demo["a"], cutoff) == []
+        run = reconcile(db, demo["a"], "2026-11", cutoff, demo["admin"], "cutoff")
+        db.flush()
+        assert (
+            db.scalar(
+                select(func.count())
+                .select_from(ExceptionRecord)
+                .where(ExceptionRecord.run_id == run.id)
+            )
+            == 0
+        )
+
+
+def test_historical_lease_and_pricing_versions(
+    factory: sessionmaker[Session], demo: dict[str, Any]
+) -> None:
+    from datetime import date
+
+    from app.db.models import Pricing
+
+    queued(factory, demo, atlas_feed(0, False))
+    tick()
+    old_cutoff = now()
+    with factory.begin() as db:
+        initial = preview(db, demo["a"], "2026-11", old_cutoff, demo["admin"], "old")
+        assert initial.total == Decimal("170.00")
+    replacement = (
+        atlas_feed(0, False)
+        .replace(b"ATL-L001,ATL-L001,1", b"ATL-L001,ATL-L001,2")
+        .replace(b"7500.00", b"7600.00")
+    )
+    queued(factory, demo, replacement, key="revision")
+    tick()
+    with factory.begin() as db:
+        db.add(
+            Pricing(
+                portfolio_id=demo["a"],
+                version=2,
+                monthly_fee=Decimal("90.00"),
+                effective_from=date(2026, 1, 1),
+            )
+        )
+    with factory.begin() as db:
+        old = preview(db, demo["a"], "2026-11", old_cutoff, demo["admin"], "old")
+        new = preview(db, demo["a"], "2026-11", now(), demo["admin"], "new")
+        assert old.id == initial.id and old.total == Decimal("170.00")
+        assert new.id != old.id and new.total == Decimal("180.00")
+        assert old.config["version"] == 1 and new.config["version"] == 2
+
+
+def test_zero_credit_and_adjustment(factory: sessionmaker[Session], demo: dict[str, Any]) -> None:
+    content = atlas_feed(0, False)
+    for kind, external, amount in [
+        ("charge", "ZERO", "0.00"),
+        ("credit", "CREDIT", "-150.00"),
+        ("adjustment", "ADJ", "12.345"),
+    ]:
+        content += f"{kind},{external},ATL-L001,1,2026-11-01,{amount},,,,,,explicit synthetic adjustment\r\n".encode()
+    queued(factory, demo, content)
+    tick()
+    with factory() as db:
+        amounts = {e.external_id: e.amount for e in db.scalars(select(LedgerEntry))}
+        assert amounts == {
+            "ZERO": Decimal("0.00"),
+            "CREDIT": Decimal("-150.00"),
+            "ADJ": Decimal("12.35"),
+        }
+
+
+def test_rate_limit_and_origin(client: TestClient) -> None:
+    assert (
+        client.post("/api/auth/logout", headers={"Origin": "https://evil.invalid"}).status_code
+        == 403
+    )
+    for _ in range(10):
+        last = client.post(
+            "/api/auth/login", json={"email": "nobody@test.invalid", "password": "invalid"}
+        )
+    assert last.status_code == 429
+    assert last.headers["Retry-After"] == "60"
+
+
+def test_cutoff_excludes_late_financial_publication(
+    factory: sessionmaker[Session], demo: dict[str, Any]
+) -> None:
+    queued(factory, demo, atlas_feed(0, False))
+    tick()
+    job_id = queued(factory, demo, atlas_feed(2, False), key="later")
+    tick()
+    with factory.begin() as db:
+        job = db.get(ImportJob, job_id)
+        assert job and job.completed_at
+        cutoff = job.completed_at - timedelta(microseconds=1)
+        run = reconcile(db, demo["a"], "2026-11", cutoff, demo["admin"], "historical")
+        db.flush()
+        records = list(db.scalars(select(ExceptionRecord).where(ExceptionRecord.run_id == run.id)))
+        assert len(records) == 2
+        assert all(record.evidence["actual"] == "0.00" for record in records)
+
+
+def test_failed_worker_attempts_recover_and_stop(
+    factory: sessionmaker[Session], demo: dict[str, Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import app.workers.runner as runner
+
+    job_id = queued(factory, demo)
+
+    def broken(db: Session, job_id: str) -> None:
+        raise RuntimeError("simulated transient infrastructure failure")
+
+    monkeypatch.setattr(runner, "process", broken)
+    assert all(runner.tick() for _ in range(3))
+    assert not runner.tick()
+    with factory() as db:
+        job = db.get(ImportJob, job_id)
+        assert job and job.status == "failed" and job.attempts == 3
+        assert db.scalar(select(func.count()).select_from(LedgerEntry)) == 0
+
+
+def test_version_conflict_does_not_mutate_posting(
+    factory: sessionmaker[Session], demo: dict[str, Any]
+) -> None:
+    queued(factory, demo, atlas_feed(1, False))
+    tick()
+    changed = atlas_feed(1, False).replace(b"synthetic rent", b"changed without revision")
+    queued(factory, demo, changed, key="changed")
+    tick()
+    with factory() as db:
+        assert db.scalar(select(func.count()).select_from(LedgerEntry)) == 1
+        assert (
+            db.scalar(select(RawRecord.reason).where(RawRecord.reason == "revision_conflict"))
+            == "revision_conflict"
+        )

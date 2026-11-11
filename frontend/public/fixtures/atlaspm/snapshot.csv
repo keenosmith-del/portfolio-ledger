@@ -1,0 +1,10 @@
+record_type,record_id,lease_ref,revision,effective_date,amount_zar,unit_ref,tenant_ref,lease_start,lease_end,status,reason
+lease,ATL-L001,ATL-L001,1,2026-01-01,7500.00,ATL-U001,RESIDENT-001,2026-01-01,,active,synthetic lease
+lease,ATL-L002,ATL-L002,1,2026-01-01,8200.00,ATL-U002,RESIDENT-002,2026-01-01,,active,synthetic lease
+charge,ATL-E000000,ATL-L001,1,2026-11-01,7500.00,,,,,,synthetic rent
+payment,ATL-E000001,ATL-L001,1,2026-11-01,-3750.00,,,,,,partial receipt
+charge,ATL-E000002,ATL-L001,1,2026-11-01,7500.00,,,,,,synthetic rent
+payment,ATL-E000003,ATL-L001,1,2026-11-01,-3750.00,,,,,,partial receipt
+charge,ATL-E000004,ATL-L001,1,2026-11-01,7500.00,,,,,,synthetic rent
+payment,ATL-BAD001,ATL-UNKNOWN,1,2026-11-01,-100.00,,,,,,deliberate unmatched lease
+charge,ATL-BAD002,ATL-L001,1,2026-11-01,not-money,,,,,,deliberate malformed amount

@@ -78,7 +78,11 @@ def reconcile(
             select(LedgerEntry)
             .join(RawRecord, RawRecord.id == LedgerEntry.raw_id)
             .join(ImportJob, ImportJob.id == RawRecord.job_id)
-            .where(LedgerEntry.portfolio_id == portfolio, LedgerEntry.created_at <= cutoff)
+            .where(
+                LedgerEntry.portfolio_id == portfolio,
+                LedgerEntry.created_at <= cutoff,
+                ImportJob.completed_at <= cutoff,
+            )
         )
     )
     by_lease: dict[str, list[LedgerEntry]] = {}

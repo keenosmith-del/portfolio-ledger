@@ -21,3 +21,21 @@ Starting foundation commit `52ecd33`, in-progress API/test changes. Command: `cd
 ## Integration correction (green)
 
 Command: `cd backend && ../.venv/bin/pytest -q` after immutable-header and transaction-scope fixes: **17 passed, 1 warning in 13.70s**. `mypy backend/app`: success, 15 source files. The upstream Starlette TestClient httpx deprecation remains. Concurrent ingestion, preview uniqueness, deterministic crash recovery, append-only trigger, composite FK isolation, HTTP lifecycle/export, IDOR, read-only role, CSRF, bad upload and attempt limits now exercised successfully. This result precedes the frontend and larger acceptance benchmark.
+
+## Historical cutoff and expanded suite
+
+`pytest tests/test_operations.py::test_cutoff_excludes_late_financial_publication -q`: **1 failed in 0.56s**, initially. After adding the missing ledger publication predicate: `pytest -q --cov=app --cov-report=term-missing` — **22 passed, 1 warning in 8.04s**, **86% total statement coverage**. Tests apply Alembic migrations in fresh isolated PostgreSQL schemas; no SQLite.
+
+Frontend initial production build: `cd frontend && npm run build` — strict TypeScript and Vite passed, 1,580 transformed modules, JS 265.29 kB / gzip 80.80 kB; CSS 20.69 kB / gzip 5.30 kB; Vite build 11.68s. First Chrome E2E run: **2 failed** during login, origin allowlist mismatch (127.0.0.1 vs localhost). Correction applied, rerun pending. Artifacts intentionally untracked.
+
+## 10,000-event measured acceptance baseline
+
+Executed `.venv/bin/python scripts/acceptance.py` against PostgreSQL 16, Darwin arm64/Python 3.12.15. Completed **2026-11-11 07:25:42 UTC**. Base commit `81fd5e6`, in-progress uncommitted frontend/cutoff/acceptance changes (not represented as a clean-commit benchmark). Machine output: [baseline JSON](evidence/acceptance-baseline.json).
+
+Full HTTP journey, both adapters, evidence review, duplicate preview and CSV export passed in the temporary migrated schema. Deterministic artifact 715,499 bytes, **10,000 financial events + two lease rows + two deliberately invalid rows**. Initial receipt: 10,002 accepted / 0 duplicate / 2 quarantined. Replay: 0 accepted / 10,002 duplicate / 2 quarantined. DB after replay: **10,000 ledger entries; ZAR 18,750,000.00**. Initial enqueue+processing **100.590s**, replay **80.810s**, full acceptance **182.079s**. Worker processing-only logs: 100,429ms and 80,646ms. This is one local baseline, not a production throughput/load SLO or an improvement claim. Isolated schema removed in finally. 50,000-event stretch target not executed.
+
+## Browser milestone and reliability regression expansion
+
+`cd frontend && npm run test:e2e`: **2 passed in 7.3s**, real installed Chrome against local API/Vite/PostgreSQL/separate worker. Full reviewer journey + 390px mobile; no horizontal document overflow. Historical browser failures/corrections are recorded as D008–D012. Backend `pytest -q --cov=app --cov-report=term-missing`: **24 passed, 1 warning in 8.03s**, **85% coverage**. Added worker infrastructure-failure retry cap and unchanged-revision conflict tests. Coverage denominator increased with recovery seed code; earlier 86% is not claimed as a lasting final percentage.
+
+`docker compose build`: API, worker and Nginx frontend images all built successfully. Full container startup/restart verification still pending at this entry.
